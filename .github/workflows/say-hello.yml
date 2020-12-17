@@ -12,3 +12,4 @@ jobs:
 
     steps:
       - run: hostname
+      - run: sleep 20
