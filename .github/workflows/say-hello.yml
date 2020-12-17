@@ -1,0 +1,14 @@
+name: say-hello
+on: push
+
+jobs: 
+  say_hello:
+    name: Run ${{ run_number }}
+    runs-on : self-hosted
+
+    strategy:
+      matrix:
+        run_number: [0, 1, 2, 3]
+
+    steps:
+      - run: hostname
