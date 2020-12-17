@@ -5,6 +5,9 @@ description = "CLI for managing self-hosted GitHub actions runner"
 authors = ["Anton Helm <anton.helm@tecnico.ulisboa.pt>"]
 license = "MIT"
 
+[tool.poetry.scripts]
+wusa = 'wusa.cli:main'
+
 [tool.poetry.dependencies]
 python = "^3.6"
 typer = "^0.3.2"
