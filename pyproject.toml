@@ -10,7 +10,7 @@ wusa = 'wusa.cli:main'
 
 [tool.poetry.dependencies]
 python = "^3.6"
-typer = "^0.3.2"
+click = "^7.1.2"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^20.8b1", allow-prereleases = true}
