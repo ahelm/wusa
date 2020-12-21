@@ -12,9 +12,11 @@ wusa = 'wusa.cli:main'
 python = "^3.6"
 click = "^7.1.2"
 docker = "^4.4.0"
+appdirs = "^1.4.4"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^20.8b1", allow-prereleases = true}
+pytest = "^6.2.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
