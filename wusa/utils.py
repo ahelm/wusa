@@ -4,7 +4,7 @@ import sys
 from click import secho
 from click import style
 
-from wusa import CONFIG_FILE
+from wusa import WUSA_CONFIG_FILE
 
 
 def requires_config_file(f):
@@ -12,7 +12,7 @@ def requires_config_file(f):
 
     @wraps(f)
     def inner(*args, **kwargs):
-        if not CONFIG_FILE.exists():
+        if not WUSA_CONFIG_FILE.exists():
             secho(
                 "Could not find valid configuration! Please run: "
                 + style("wusa init", bold=True),
