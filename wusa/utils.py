@@ -19,7 +19,7 @@ def requires_config_file(f):
                 fg="yellow",
                 err=True,
             )
-            sys.exit(-1)
+            sys.exit(2)
         return f(*args, **kwargs)
 
     return inner
