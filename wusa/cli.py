@@ -1,13 +1,10 @@
-from uuid import uuid4
-from importlib.metadata import version
 import json
 
 import click
-from click.decorators import option
 import keyring
 
-import wusa
 from wusa.utils import requires_config_file
+import wusa
 
 
 @click.group()
