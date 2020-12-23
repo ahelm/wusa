@@ -59,18 +59,12 @@ def _patch_keyring(monkeypatch):
 
 
 @pytest.fixture(name="tmp_configdir")
-def _custom_configfile(tmp_path):
+def _custom_configfile(monkeypatch, tmp_path):
     """Changes wusa's config dir and config file to a test specific dir/file"""
-    prev_config_dir = wusa.WUSA_CONFIG_DIR
-    prev_config_file = wusa.WUSA_CONFIG_FILE
-
-    wusa.WUSA_CONFIG_DIR = tmp_path / "dummy_config_dir"
-    wusa.WUSA_CONFIG_FILE = tmp_path / "dummy_config_dir" / "config.json"
-
-    yield
-
-    wusa.WUSA_CONFIG_DIR = prev_config_dir
-    wusa.WUSA_CONFIG_FILE = prev_config_file
+    config_dir = tmp_path / "config_dir"
+    config_file = config_dir / "config.json"
+    monkeypatch.setattr(wusa, "WUSA_CONFIG_DIR", config_dir)
+    monkeypatch.setattr(wusa, "WUSA_CONFIG_FILE", config_file)
 
 
 def test_main():
