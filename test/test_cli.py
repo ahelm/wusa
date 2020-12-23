@@ -108,10 +108,15 @@ def test_init_correct_setting_of_keyring(cwd, patched_keyring):
 
 def test_init_storing_of_config(cwd, tmp_configdir, patched_keyring):
     runner = CliRunner()
-    result = runner.invoke(main, ["init", "ABCD", "."])
+    result = runner.invoke(main, ["init", "ABCD", "."], catch_exceptions=False)
 
     assert result.exit_code == 0
-    assert Path(wusa.WUSA_CONFIG_FILE).exists()
+    assert wusa.WUSA_CONFIG_DIR.exists()
+    assert wusa.WUSA_CONFIG_FILE.exists()
+
+    with open(wusa.WUSA_CONFIG_FILE, mode="r") as fp:
+        config = json.load(fp)
+        assert Path(config["base_dir"]) == cwd
 
 
 def test_init_fails_on_files(cwd):
