@@ -8,8 +8,8 @@ from docker.models.configs import ConfigCollection
 try:
     CLIENT = docker.from_env()
 except docker.errors.DockerException as e:
-    secho("[ERROR] Can't obtain docker client!", fg="red", err=True)
-    secho("[ERROR] Is docker deamon running?", fg="red", err=True)
+    print("[ERROR] Can't obtain docker client!", file=sys.stderr)
+    print("[ERROR] Is docker deamon running?", file=sys.stderr)
     sys.exit(-1)
 
 
