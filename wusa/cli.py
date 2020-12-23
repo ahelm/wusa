@@ -1,14 +1,12 @@
 from uuid import uuid4
 from importlib.metadata import version
+import json
 
 import click
 from click.decorators import option
 import keyring
 
-from wusa import CLIENT
-from wusa import WUSA_SERVICE_NAME
-from wusa import WUSA_USERNAME
-from wusa import WUSA_CONFIG_FILE
+import wusa
 from wusa.utils import requires_config_file
 
 
@@ -44,18 +42,17 @@ def init(token, basedir):
     stored in an OS-specific keyring service. Wusa also requires a base directory
     `<basedir>` for storing the output of the different runners.
     """
-    keyring.set_password(WUSA_SERVICE_NAME, WUSA_USERNAME, token)
+    keyring.set_password(wusa.WUSA_SERVICE_NAME, wusa.WUSA_USERNAME, token)
 
-    # if not WUSA_CONFIG_FILE.exists():
-    #     WUSA_CONFIG_FILE.touch()
+    if not wusa.WUSA_CONFIG_DIR.exists():
+        wusa.WUSA_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
+    with open(wusa.WUSA_CONFIG_FILE, mode="w") as fp:
+        json.dump({"base_dir": basedir}, fp)
 
     # store in config file:
-    #  - working directory
-    #  - runner group
-    #  - flag -> org-runner yes/no?
-    #  - org-name -> if org-runner
-    #  - default labels
+    #  [x] working directory
+    #  [ ] default labels
 
 
 @main.command()
