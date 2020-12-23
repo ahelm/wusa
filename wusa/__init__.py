@@ -1,7 +1,6 @@
 from pathlib import Path
 import sys
 
-from click import secho
 import docker
 import appdirs
 from docker.models.configs import ConfigCollection
