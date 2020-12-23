@@ -58,33 +58,5 @@ def init(token, basedir):
 @main.command()
 @requires_config_file
 def new():
-    # """Creates a new runner."""
+    """Creates a new docker based runner for a GitHub action."""
     pass
-    # container_id = str(uuid4())[:8]
-
-    # print("> creating container")
-    # container = CLIENT.containers.run(
-    #     "myoung34/github-runner:latest",
-    #     name=f"wusa_{container_id}",
-    #     environment={
-    #         "REPO_URL": url,
-    #         "RUNNER_TOKEN": token,
-    #         "RUNNER_NAME": f"wusa_{container_id}",
-    #         "RUNNER_WORKDIR": f"/tmp/wusa_{container_id}",
-    #         "RUNNER_GROUP": "wusa-self-hosted",
-    #     },
-    #     volumes={
-    #         "/var/run/docker.sock": {"bind": "/var/run/docker.sock", "mode": "rw"},
-    #         f"/tmp/wusa_{container_id}": {
-    #             "bind": f"/tmp/wusa_{container_id}",
-    #             "mode": "rw",
-    #         },
-    #     },
-    #     labels={
-    #         "wusa.version": version("wusa"),
-    #         # "wusa.runner": "TRUE",
-    #     },
-    #     detach=True,
-    # )
-
-    # print(f"> started: {container.name} ({container.short_id})")
