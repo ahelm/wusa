@@ -15,10 +15,18 @@ docker = "^4.4.0"
 [tool.poetry.dev-dependencies]
 black = {version = "^20.8b1", allow-prereleases = true}
 pytest = "^6.2.1"
+isort = "^5.6.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+atomic=true
+force_single_line=true
+line_length=88
+known_first_party="wusa"
+
 
 [tool.black]
 line-length = 88
