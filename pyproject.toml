@@ -6,7 +6,7 @@ authors = ["Anton Helm <anton.helm@tecnico.ulisboa.pt>"]
 license = "MIT"
 
 [tool.poetry.scripts]
-wusa = 'wusa.cli:main'
+wusa = 'wusa.main:app'
 
 [tool.poetry.dependencies]
 python = "^3.6"
