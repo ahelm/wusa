@@ -11,6 +11,7 @@ wusa = 'wusa.cli:main'
 [tool.poetry.dependencies]
 python = "^3.6"
 docker = "^4.4.0"
+typer = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^20.8b1", allow-prereleases = true}
