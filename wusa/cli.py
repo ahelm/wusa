@@ -47,10 +47,8 @@ def main(prog_name: Optional[str] = None):
         prog=prog_name,
         description="CLI for managing docker-based GitHub action Runner.",
     )
-    subparsers = parser.add_subparsers()
-
     # subcommands
-    subcommand_new(subparsers)
+    subcommand_new(parser.add_subparsers(help="Creates a new runner."))
 
     # parsing and calling subcommands
     args = parser.parse_args()
