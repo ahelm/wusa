@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # import uuid
 from pathlib import Path
+from time import sleep
 from typing import List
 from typing import Protocol
 
@@ -44,3 +45,7 @@ def new(namespace: NewNamespace):
     for line in container.logs(follow=True, stream=True):
         print(line.strip().decode())
     container.remove()
+
+
+def create_wusa_runner():
+    sleep(2)
