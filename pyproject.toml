@@ -12,6 +12,9 @@ wusa = 'wusa.main:app'
 python = "^3.6"
 docker = "^4.4.0"
 typer = {extras = ["all"], version = "^0.3.2"}
+validators = "^0.18.2"
+shortuuid = "^1.0.1"
+halo = "^0.0.31"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^20.8b1", allow-prereleases = true}
