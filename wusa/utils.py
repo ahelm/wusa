@@ -3,7 +3,7 @@ import typer
 from shortuuid import ShortUUID
 from validators import url
 
-from wusa.store import read_runner_file
+from wusa.store import read_runners_file
 
 
 def is_valid_url(url_to_check: str) -> bool:
@@ -38,7 +38,7 @@ def generate_container_name() -> str:
     str
         String of a valid wusa runner name
     """
-    runners = read_runner_file()
+    runners = read_runners_file()
 
     for _ in range(100):
         runner_name = "wusa_" + ShortUUID().random(length=8)
