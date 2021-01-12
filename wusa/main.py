@@ -70,13 +70,13 @@ def config():
     WUSA configuration info
     =======================
 
-    application directory:
+    Application directory:
         {WUSA_BASE_DIR}
 
-    config file:
+    Config file:
         {WUSA_CONFIG_FILE}
 
-    runner file:
+    Runner file:
         {WUSA_RUNNER_FILE}
     """
     typer
