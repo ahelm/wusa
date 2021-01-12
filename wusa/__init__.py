@@ -14,6 +14,6 @@ import typer
 from pathlib import Path
 
 APP_NAME = "wusa"
-WUSA_BASE_DIR = Path(typer.get_app_dir(APP_NAME))
+WUSA_BASE_DIR = Path(typer.get_app_dir(APP_NAME, roaming=False, force_posix=True))
 WUSA_CONFIG_FILE = WUSA_BASE_DIR / "config.json"
 WUSA_RUNNER_FILE = WUSA_BASE_DIR / "runner.json"
