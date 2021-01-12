@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import textwrap
 from pathlib import Path
 
 import typer
@@ -58,6 +59,28 @@ def new(
         creation_spinner.start()
         create_wusa_runner()
         creation_spinner.succeed(text=f"Runner '{name}' created")
+
+
+@app.command(short_help="Prints configuration information.")
+def config():
+    """
+    wusa config - prints configuration information
+    """
+    msg = f"""
+    WUSA configuration info
+    =======================
+
+    application directory:
+        {WUSA_BASE_DIR}
+
+    config file:
+        {WUSA_CONFIG_FILE}
+
+    runner file:
+        {WUSA_RUNNER_FILE}
+    """
+    typer
+    typer.secho(textwrap.dedent(msg))
 
 
 @app.callback()
