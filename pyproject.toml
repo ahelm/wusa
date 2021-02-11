@@ -17,9 +17,7 @@ shortuuid = "^1.0.1"
 halo = "^0.0.31"
 
 [tool.poetry.dev-dependencies]
-black = {version = "^20.8b1", allow-prereleases = true}
 pytest = "^6.2.1"
-isort = "^5.6.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
