@@ -2,10 +2,11 @@
 import sys
 
 import docker
+from docker.errors import DockerException
 
 try:
     CLIENT = docker.from_env()
-except docker.errors.DockerException:
+except DockerException:
     print("[ERROR] Can't obtain docker client!", file=sys.stderr)
     print("[ERROR] Is docker deamon running?", file=sys.stderr)
     sys.exit(-1)
