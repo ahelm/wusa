@@ -79,7 +79,6 @@ def config():
     Runner file:
         {WUSA_RUNNER_FILE}
     """
-    typer
     typer.secho(textwrap.dedent(msg))
 
 
