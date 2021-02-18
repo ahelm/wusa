@@ -96,7 +96,7 @@ def main():
         WUSA_BASE_DIR.mkdir(parents=True)
 
     if not WUSA_CONFIG_FILE.exists():
-        WUSA_CONFIG_FILE.touch()
+        WUSA_CONFIG_FILE.write_text(json.dumps({}))
 
     if not WUSA_RUNNER_FILE.exists():
         # store empty dictionary
