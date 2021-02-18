@@ -70,14 +70,8 @@ def config():
     WUSA configuration info
     =======================
 
-    Application directory:
-        {WUSA_BASE_DIR}
-
-    Config file:
-        {WUSA_CONFIG_FILE}
-
-    Runner file:
-        {WUSA_RUNNER_FILE}
+    Config file: {WUSA_CONFIG_FILE}
+    Runner file: {WUSA_RUNNER_FILE}
     """
     typer.secho(textwrap.dedent(msg))
 
