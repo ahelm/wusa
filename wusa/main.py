@@ -99,6 +99,4 @@ def main():
         WUSA_CONFIG_FILE.write_text(json.dumps({}))
 
     if not WUSA_RUNNER_FILE.exists():
-        # store empty dictionary
-        with WUSA_RUNNER_FILE.open("w") as fp:
-            json.dump({}, fp)
+        WUSA_RUNNER_FILE.write_text(json.dumps({}))
