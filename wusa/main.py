@@ -37,7 +37,7 @@ def new(
     labels: str = typer.Option("", help="Comma-seperated labels for the runner."),
 ):
     """
-    wusa new - creates a new wusa runner
+    wusa new - Create new GitHub Action runner
 
     Using the provided arguments 'REPO_URL' and 'TOKEN ', wusa registers a new runner
     and starts up the container for the runner. To obtain the token, go to the repo for
@@ -65,7 +65,7 @@ def new(
 @app.command(short_help="Prints configuration information")
 def config():
     """
-    wusa config - prints configuration information
+    wusa config - Prints configuration information
     """
     msg = f"""
     WUSA configuration info
@@ -79,6 +79,9 @@ def config():
 
 @app.command(short_help="Login or refresh your authentication")
 def auth():
+    """
+    wusa auth - Login or refresh your authentication
+    """
     raise typer.Exit(1)
 
 
