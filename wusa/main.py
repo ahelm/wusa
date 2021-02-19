@@ -12,6 +12,7 @@ from wusa import WUSA_RUNNER_FILE
 from wusa.new import create_wusa_runner
 from wusa.store import open_runners_file
 from wusa.utils import generate_container_name
+from wusa.utils import has_valid_config
 from wusa.utils import is_valid_url
 
 app = typer.Typer()
@@ -94,3 +95,18 @@ def main():
 
     if not WUSA_RUNNER_FILE.exists():
         WUSA_RUNNER_FILE.write_text(json.dumps({}))
+
+    if not has_valid_config():
+        typer.secho(
+            "Configuration file is invalid!",
+            fg=typer.colors.RED,
+            bold=True,
+            err=True,
+        )
+        typer.secho(
+            f"Please run: {typer.style('wusa auth', fg=typer.colors.RESET)}",
+            fg=typer.colors.RED,
+            bold=True,
+            err=True,
+        )
+        raise typer.Exit(1)

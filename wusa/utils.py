@@ -48,3 +48,7 @@ def generate_container_name() -> str:
 
     typer.secho("Failed to generate unique runner name!", fg=typer.colors.RED, err=True)
     raise typer.Exit(-1)
+
+
+def has_valid_config() -> bool:
+    return False
