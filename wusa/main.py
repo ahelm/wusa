@@ -18,7 +18,7 @@ from wusa.utils import is_valid_url
 app = typer.Typer()
 
 
-@app.command()
+@app.command(short_help="Create new GitHub Action runner")
 def new(
     repo_url: str = typer.Argument(
         ...,
@@ -62,7 +62,7 @@ def new(
         creation_spinner.succeed(text=f"Runner '{name}' created")
 
 
-@app.command(short_help="Prints configuration information.")
+@app.command(short_help="Prints configuration information")
 def config():
     """
     wusa config - prints configuration information
