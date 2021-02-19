@@ -15,6 +15,7 @@ typer = {extras = ["all"], version = "^0.3.2"}
 validators = "^0.18.2"
 shortuuid = "^1.0.1"
 halo = "^0.0.31"
+requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
