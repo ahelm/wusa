@@ -77,6 +77,11 @@ def config():
     typer.secho(textwrap.dedent(msg))
 
 
+@app.command(short_help="Login or refresh your authentication")
+def auth():
+    raise typer.Exit(1)
+
+
 @app.callback()
 def main():
     """
