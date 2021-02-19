@@ -98,13 +98,8 @@ def main():
 
     if not has_valid_config():
         typer.secho(
-            "Configuration file is invalid!",
-            fg=typer.colors.RED,
-            bold=True,
-            err=True,
-        )
-        typer.secho(
-            f"Please run: {typer.style('wusa auth', fg=typer.colors.RESET)}",
+            "ERROR :: Configuration file is invalid! Please run: "
+            + typer.style("wusa auth", fg=typer.colors.RESET),
             fg=typer.colors.RED,
             bold=True,
             err=True,
