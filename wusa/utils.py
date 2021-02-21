@@ -66,10 +66,10 @@ def print_error(msg: str) -> None:
     typer.secho(f"ERROR :: {msg}", fg=typer.colors.RED, err=True)
 
 
-def is_valid_status_code(status_code: int, extra_msg_if_not_valid: str = "") -> bool:
+def is_valid_status_code(status_code: int, api_address: str = "") -> bool:
     if status_code != 200:
+        print_error(f"Response from '{api_address}' was incorrect!")
         print_error(f"Unexpected status code '{status_code}' received!")
-        if extra_msg_if_not_valid:
-            print_error(extra_msg_if_not_valid)
-
-    return status_code == 200
+        return False
+    else:
+        return True

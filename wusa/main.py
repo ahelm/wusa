@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 import textwrap
+import webbrowser
+from datetime import timedelta
 from pathlib import Path
+from time import sleep
 
 import typer
 from halo import Halo
@@ -9,6 +12,9 @@ from halo import Halo
 from wusa import WUSA_BASE_DIR
 from wusa import WUSA_CONFIG_FILE
 from wusa import WUSA_RUNNER_FILE
+from wusa.auth import gh_get_user_access_token
+from wusa.auth import gh_user_verification_codes
+from wusa.exception import PendingError
 from wusa.new import create_wusa_runner
 from wusa.store import open_runners_file
 from wusa.utils import generate_container_name
@@ -82,7 +88,52 @@ def auth():
     """
     wusa auth - Login or refresh your authentication
     """
-    raise typer.Exit(1)
+    user_name = typer.prompt("* GitHub username")
+
+    try:
+        codes_resp = gh_user_verification_codes()
+    except ConnectionError:
+        raise typer.Exit(2)
+
+    typer.echo(
+        "* Copy the verification code: '"
+        + typer.style(codes_resp["user_code"], bold=True)
+        + "'"
+    )
+
+    if typer.confirm(
+        f"* Press Enter to open '{codes_resp['verification_uri']}' ...",
+        default=True,
+        show_default=False,
+        prompt_suffix=" ",
+    ):
+        webbrowser.open(codes_resp["verification_uri"])
+
+    with Halo(text="Waiting for device verification") as spinner:
+        time_until_expiration = timedelta(seconds=codes_resp["expires_in"])
+        time_between_requests = timedelta(seconds=codes_resp["interval"])
+        number_checks = time_until_expiration // time_between_requests
+
+        for _ in range(number_checks):
+            try:
+                user_access_token = gh_get_user_access_token(codes_resp["device_code"])
+                break
+            except PendingError:
+                sleep(time_between_requests.seconds)
+            except ConnectionError:
+                raise NotImplementedError
+
+        spinner.succeed("Obtained user access token!")
+
+    config = {
+        "username": user_name,
+        "access_token": user_access_token,
+    }
+    WUSA_CONFIG_FILE.write_text(json.dumps(config))
+    typer.echo(
+        typer.style("\u2713", fg=typer.colors.GREEN, bold=True)
+        + " Authentication saved"
+    )
 
 
 @app.callback()
