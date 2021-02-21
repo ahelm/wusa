@@ -9,8 +9,8 @@ from wusa import WUSA_CLIENT_ID
 from wusa.auth import gh_user_verification_codes
 
 
-@pytest.fixture(name="mock_response")
-def _response(monkeypatch):
+@pytest.fixture(name="mock_post")
+def _pose(monkeypatch):
     Response = namedtuple("Response", ["status_code", "text"])
 
     def _mocking(expected_url, expected_status_code, expected_data, query_key):
@@ -27,8 +27,8 @@ def _response(monkeypatch):
     return _mocking
 
 
-def test_gh_user_verification_codes_return_value(mock_response):
-    expected_dict = {
+def test_gh_user_verification_codes_return_value(mock_post):
+    expected_q_keys = {
         # chosen randomly
         "device_code": "abc123",
         "user_code": "BCDE-DCEF",
@@ -36,16 +36,36 @@ def test_gh_user_verification_codes_return_value(mock_response):
         "expires_in": 1,
         "interval": 5,
     }
-    mock_response(
+    mock_post(
         "https://github.com/login/device/code",
         200,
         {"client_id": WUSA_CLIENT_ID},
-        urlencode(expected_dict),
+        urlencode(expected_q_keys),
     )
 
     resp = gh_user_verification_codes()
 
     assert isinstance(resp, dict)
-    for expected_key, expected_value in expected_dict.items():
+    for expected_key, expected_value in expected_q_keys.items():
         assert expected_key in resp
         assert resp[expected_key] == expected_value
+
+
+def test_gh_user_verification_codes_raises_ConnectionError(mock_post):
+    mock_post(
+        "https://github.com/login/device/code",
+        404,
+        {"client_id": WUSA_CLIENT_ID},
+        urlencode(
+            {
+                "device_code": "abc123",
+                "user_code": "BCDE-DCEF",
+                "verification_uri": "https://some_uri",
+                "expires_in": 1,
+                "interval": 5,
+            }
+        ),
+    )
+
+    with pytest.raises(ConnectionError):
+        gh_user_verification_codes()
