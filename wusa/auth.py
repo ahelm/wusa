@@ -15,7 +15,7 @@ def gh_user_verification_codes() -> Dict[str, Union[str, int]]:
         "https://github.com/login/device/code",
         data={
             "client_id": WUSA_CLIENT_ID,
-            "scope": "repo workflow",
+            "scope": "repo",
         },
     )
 
