@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-import json
-from json.decoder import JSONDecodeError
-
 import typer
 from shortuuid import ShortUUID
 from validators import url
 
-from wusa import WUSA_CONFIG_FILE
 from wusa.store import read_runners_file
 
 
@@ -52,14 +48,6 @@ def generate_container_name() -> str:
 
     typer.secho("Failed to generate unique runner name!", fg=typer.colors.RED, err=True)
     raise typer.Exit(-1)
-
-
-def has_valid_config() -> bool:
-    try:
-        json.loads(WUSA_CONFIG_FILE.read_text())
-        return True
-    except JSONDecodeError:
-        return False
 
 
 def print_error(msg: str) -> None:
