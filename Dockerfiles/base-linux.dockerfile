@@ -4,15 +4,15 @@ LABEL maintainer="a.helm87@gmail.com"
 ARG GIT_VERSION="2.30.1"
 ARG DUMB_INIT_VERSION="1.2.5"
 ARG DOCKER_COMPOSE_VERSION="1.28.4"
+ARG GH_ACTION_RUNNER_VERSION="2.277.1"
 
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    apt-utils \
+  && apt-get install -y --no-install-recommends \
     awscli \
     curl \
     tar \
@@ -52,18 +52,14 @@ RUN apt-get update && \
   && curl -sL "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose \
   && chmod +x /usr/local/bin/docker-compose \
   && rm -rf /var/lib/apt/lists/* \
-  && rm -rf /tmp/*
+  && rm -rf /tmp/* \
+  && useradd wusa \
+  && mkdir /actions-runner \
+  && chown wusa /actions-runner
 
-ARG GH_ACTION_RUNNER_VERSION="2.277.1"
-
-RUN useradd wusa \
-  && mkdir /workingdir \
-  && chown wusa /workingdir
 USER wusa
-WORKDIR /workingdir
+WORKDIR /actions-runner
 
-RUN mkdir actions-runner \
-  && cd actions-runner \
-  && curl -O -L https://github.com/actions/runner/releases/download/v${GH_ACTION_RUNNER_VERSION}/actions-runner-linux-x64-${GH_ACTION_RUNNER_VERSION}.tar.gz \
+RUN curl -O -L https://github.com/actions/runner/releases/download/v${GH_ACTION_RUNNER_VERSION}/actions-runner-linux-x64-${GH_ACTION_RUNNER_VERSION}.tar.gz \
   && tar xzf ./actions-runner-linux-x64-${GH_ACTION_RUNNER_VERSION}.tar.gz \
   && rm actions-runner-linux-x64-${GH_ACTION_RUNNER_VERSION}.tar.gz
