@@ -6,6 +6,7 @@ from time import sleep
 
 import typer
 from halo import Halo
+from rich.console import Console
 
 from wusa import WUSA_ACCESS_TOKEN
 from wusa import WUSA_BASE_DIR
@@ -15,6 +16,13 @@ from wusa.auth import gh_user_verification_codes
 from wusa.exception import PendingError
 
 app = typer.Typer()
+
+
+@app.command(name="list", short_help="List all runners")
+def list_runners():
+    console = Console()
+    runners = json.loads(WUSA_RUNNER_FILE.read_text())
+    console.print(runners)
 
 
 @app.command(short_help="Login or refresh your authentication")
