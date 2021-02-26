@@ -5,7 +5,7 @@ from string import ascii_lowercase
 from pytest import fixture
 
 from wusa.runners import Runner
-from wusa.runners import _RunnersList
+from wusa.runners import RunnersList
 from wusa.runners import open_runner_file
 
 
@@ -64,16 +64,16 @@ def test_open_runner_file(mocked_wusa_base_dir):
     assert runner_file.read_text() == "something"
 
 
-def test__RunnerList_no_runners(mocked_runners_json):
+def test_RunnerList_no_runners(mocked_runners_json):
     mocked_runners_json.write_text(json.dumps([]))
-    assert len(_RunnersList()) == 0
+    assert len(RunnersList()) == 0
 
 
-def test__RunnerList_one_runner(mocked_runners_json):
+def test_RunnerList_one_runner(mocked_runners_json):
     runner_dict = {
         "name": "somename",
         "repo": "some/repo",
         "labels": ["label1", "label2", "some_other_label"],
     }
     mocked_runners_json.write_text(json.dumps([Runner(**runner_dict).as_dict()]))
-    assert len(_RunnersList()) == 1
+    assert len(RunnersList()) == 1

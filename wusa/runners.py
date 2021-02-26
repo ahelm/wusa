@@ -48,7 +48,7 @@ class Runner:
         return asdict(self)
 
 
-class _RunnersList:
+class RunnersList:
     def __init__(self) -> None:
         with open_runner_file(mode="r") as fp:
             raw_list = loads(fp.read())
@@ -61,4 +61,4 @@ class _RunnersList:
         return len(self._runner_list)
 
 
-RunnersList = _RunnersList()
+Runners = RunnersList()
