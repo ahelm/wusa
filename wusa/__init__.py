@@ -7,7 +7,7 @@ from docker.errors import DockerException
 import typer
 
 try:
-    CLIENT = docker.from_env()
+    wusa_client = docker.from_env()
 except DockerException:
     print("[ERROR] Can't obtain docker client!", file=sys.stderr)
     print("[ERROR] Is docker deamon running?", file=sys.stderr)
