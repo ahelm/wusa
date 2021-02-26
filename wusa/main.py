@@ -150,6 +150,26 @@ def up(runner_name: str):
             print(cleaned_line)
 
 
+@app.command()
+def down(runner_name: str):
+    runners = RunnerList.from_json(WUSA_RUNNER_FILE.read_text())
+
+    for runner in runners:
+        if runner_name == runner.name:
+            valid_runner = runner
+            break
+    else:
+        typer.secho(
+            f"'{runner_name}' not found in the list of runners",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(2)
+
+    container = wusa_client.containers.get(valid_runner.name)
+    container.stop()
+
+
 @app.command(name="list", short_help="List all runners")
 def list_runners():
     console = Console()
