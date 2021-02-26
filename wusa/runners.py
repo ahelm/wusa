@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
+from json import loads
 from string import ascii_lowercase
 from typing import IO
 from typing import Dict
@@ -44,14 +45,20 @@ class Runner:
         return f"https://github.com/{self.repo}"
 
     def as_dict(self) -> Dict[str, Union[str, List[str]]]:
-        d = asdict(self)
-        d["url"] = self.url
-        return d
+        return asdict(self)
 
 
-class _RunnerList:
+class _RunnersList:
     def __init__(self) -> None:
-        pass
+        with open_runner_file(mode="r") as fp:
+            raw_list = loads(fp.read())
+
+        self._runner_list = []
+        for entry in raw_list:
+            self._runner_list.append(Runner(**entry))
+
+    def __len__(self) -> int:
+        return len(self._runner_list)
 
 
-RunnerList = _RunnerList()
+RunnersList = _RunnersList()

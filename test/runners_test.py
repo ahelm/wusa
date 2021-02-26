@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import json
 from string import ascii_lowercase
 
 from pytest import fixture
 
 from wusa.runners import Runner
+from wusa.runners import _RunnersList
 from wusa.runners import open_runner_file
 
 
@@ -32,7 +34,6 @@ def test_Runner_as_dict():
     expected_dict = {
         "name": "somename",
         "repo": "some/repo",
-        "url": "https://github.com/some/repo",
         "labels": ["label1", "label2", "some_other_label"],
     }
     assert runner.as_dict() == expected_dict
@@ -54,3 +55,24 @@ def test_open_runner_file(mocked_wusa_base_dir):
 
     assert runner_file.exists()
     assert runner_file.read_text() == "something"
+
+
+def test__RunnerList_no_runners(mocked_wusa_base_dir):
+    runner_file = mocked_wusa_base_dir / "runners.json"
+    runner_file.touch()
+
+    runner_file.write_text(json.dumps([]))
+    assert len(_RunnersList()) == 0
+
+
+def test__RunnerList_one_runner(mocked_wusa_base_dir):
+    runner_file = mocked_wusa_base_dir / "runners.json"
+    runner_file.touch()
+
+    runner_dict = {
+        "name": "somename",
+        "repo": "some/repo",
+        "labels": ["label1", "label2", "some_other_label"],
+    }
+    runner_file.write_text(json.dumps([Runner(**runner_dict).as_dict()]))
+    assert len(_RunnersList()) == 1
