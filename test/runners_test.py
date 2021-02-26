@@ -11,3 +11,14 @@ def test_Runner_init():
     assert all(e == g for e, g in zip(expected_labels, runner.labels))
     assert runner.labels == ["label1", "label2", "some_other_label"]
     assert runner.url == "https://github.com/some/repo"
+
+
+def test_Runner_as_dict():
+    runner = Runner("somename", "some/repo", ["some_other_label", "label1", "label2"])
+    expected_dict = {
+        "name": "somename",
+        "repo": "some/repo",
+        "url": "https://github.com/some/repo",
+        "labels": ["label1", "label2", "some_other_label"],
+    }
+    assert runner.as_dict() == expected_dict
