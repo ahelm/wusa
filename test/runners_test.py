@@ -51,6 +51,7 @@ def _mock_wusa_basedir(tmp_path, monkeypatch):
 def _mock_runners_json(mocked_wusa_base_dir):
     runner_file = mocked_wusa_base_dir / "runners.json"
     runner_file.touch()
+    runner_file.write_text(json.dumps([]))
     yield runner_file
 
 
@@ -65,7 +66,6 @@ def test_open_runner_file(mocked_wusa_base_dir):
 
 
 def test_RunnerList_no_runners(mocked_runners_json):
-    mocked_runners_json.write_text(json.dumps([]))
     assert len(RunnersList()) == 0
 
 
@@ -77,3 +77,12 @@ def test_RunnerList_one_runner(mocked_runners_json):
     }
     mocked_runners_json.write_text(json.dumps([Runner(**runner_dict).as_dict()]))
     assert len(RunnersList()) == 1
+
+
+def test_RunnerList_new(mocked_runners_json):
+    runners = RunnersList()
+    assert len(runners) == 0
+    runners.create_new_runner("some/repo", ["some_label", "some-more"])
+    assert len(runners) == 1
+    assert runners[-1].name.startswith("wusa-")
+    assert runners[-1].repo == "some/repo"

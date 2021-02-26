@@ -3,9 +3,11 @@ from contextlib import contextmanager
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
+from json import dumps
 from json import loads
 from string import ascii_lowercase
 from typing import IO
+from typing import Any
 from typing import Dict
 from typing import Generator
 from typing import List
@@ -49,16 +51,37 @@ class Runner:
 
 
 class RunnersList:
-    def __init__(self) -> None:
+    @property
+    def _runner_list(self) -> List[Runner]:
         with open_runner_file(mode="r") as fp:
             raw_list = loads(fp.read())
 
-        self._runner_list = []
+        runner_list = []
         for entry in raw_list:
-            self._runner_list.append(Runner(**entry))
+            runner_list.append(Runner(**entry))
+
+        return runner_list
+
+    @_runner_list.setter
+    def _runner_list(self, list_runners: List[Runner]) -> None:
+        processed_list = []
+        for runner in list_runners:
+            processed_list.append(runner.as_dict())
+
+        with open_runner_file(mode="w") as fp:
+            fp.write(dumps(processed_list))
 
     def __len__(self) -> int:
         return len(self._runner_list)
+
+    def __getitem__(self, key: Any) -> Runner:
+        return self._runner_list[key]
+
+    def create_new_runner(self, repo: str, labels: List[str] = []) -> None:
+        runners = self._runner_list
+        new_runner = Runner.new(repo, labels)
+        runners.append(new_runner)
+        self._runner_list = runners
 
 
 Runners = RunnersList()
