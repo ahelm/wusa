@@ -7,7 +7,6 @@ from json import dumps
 from json import loads
 from string import ascii_lowercase
 from typing import IO
-from typing import Any
 from typing import Dict
 from typing import Generator
 from typing import List
@@ -74,7 +73,7 @@ class RunnersList:
     def __len__(self) -> int:
         return len(self._runner_list)
 
-    def __getitem__(self, key: Any) -> Runner:
+    def __getitem__(self, key: int) -> Runner:
         return self._runner_list[key]
 
     def create_new_runner(self, repo: str, labels: List[str] = []) -> None:
