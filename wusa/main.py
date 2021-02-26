@@ -10,6 +10,7 @@ from typing import Generator
 from typing import List
 
 import typer
+from docker.errors import NotFound
 from gidgethub import BadRequest
 from halo import Halo
 from rich.console import Console
@@ -30,6 +31,7 @@ app = typer.Typer()
 @dataclass
 class Runner:
     name: str
+    repo: str
     repo_url: str
     token: str
 
@@ -54,7 +56,7 @@ class Runner:
         id_ = ShortUUID(alphabet=ascii_lowercase).random(8)
         name = f"wusa-{id_}"
         repo_url = f"https://github.com/{repo}"
-        return cls(name, repo_url, token)
+        return cls(name, repo, repo_url, token)
 
 
 @dataclass
@@ -70,6 +72,7 @@ class RunnerList:
             runner_list.append(
                 Runner(
                     runner["name"],
+                    runner["repo"],
                     runner["repo_url"],
                     runner["token"],
                 )
@@ -168,6 +171,55 @@ def down(runner_name: str):
 
     container = wusa_client.containers.get(valid_runner.name)
     container.stop()
+
+
+@app.command()
+def rm(runner_name: str):
+    runners = RunnerList.from_json(WUSA_RUNNER_FILE.read_text())
+
+    for runner in runners:
+        if runner_name == runner.name:
+            valid_runner = runner
+            break
+    else:
+        typer.secho(
+            f"'{runner_name}' not found in the list of runners",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(2)
+
+    try:
+        container = wusa_client.containers.get(valid_runner.name)
+        container.remove()
+    except NotFound:
+        pass
+
+    try:
+        deletion_token = post_gh_api(
+            f"/repos/{runner.repo}/actions/runners/registration-token"
+        )
+    except BadRequest:
+        typer.secho(
+            "Issue obtaining 'registration-token'",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(2)
+
+    removing_container = wusa_client.containers.run(
+        valid_runner.name,
+        f"bash -c './config.sh remove --token {deletion_token['token']}'",
+        remove=True,
+        detach=True,
+    )
+    for line in removing_container.logs(stream=True):
+        cleaned_line = line.decode("utf-8").strip()
+        if cleaned_line:
+            print(cleaned_line)
+    wusa_client.images.remove(valid_runner.name)
+
+    # TODO: remove runner from runner list
 
 
 @app.command(name="list", short_help="List all runners")
