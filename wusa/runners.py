@@ -2,9 +2,12 @@
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
+from string import ascii_lowercase
 from typing import Dict
 from typing import List
 from typing import Union
+
+from shortuuid import ShortUUID
 
 
 @dataclass
@@ -15,6 +18,11 @@ class Runner:
 
     def __post_init__(self) -> None:
         self.labels = sorted(self.labels)
+
+    @classmethod
+    def new(cls, repo: str, labels: List[str] = []) -> "Runner":
+        name = "wusa-" + ShortUUID(alphabet=ascii_lowercase).random(length=8)
+        return cls(name, repo, labels)
 
     @property
     def url(self) -> str:
