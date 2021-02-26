@@ -9,6 +9,11 @@ from typing import Union
 
 from shortuuid import ShortUUID
 
+from . import WUSA_BASE_DIR
+
+WUSA_RUNNER_FILE = WUSA_BASE_DIR / "runner.json"
+UUID = ShortUUID(alphabet=ascii_lowercase)
+
 
 @dataclass
 class Runner:
@@ -21,7 +26,7 @@ class Runner:
 
     @classmethod
     def new(cls, repo: str, labels: List[str] = []) -> "Runner":
-        name = "wusa-" + ShortUUID(alphabet=ascii_lowercase).random(length=8)
+        name = "wusa-" + UUID.random(length=8)
         return cls(name, repo, labels)
 
     @property
@@ -34,5 +39,9 @@ class Runner:
         return d
 
 
-class RunnerList:
-    pass
+class _RunnerList:
+    def __init__(self) -> None:
+        pass
+
+
+RunnerList = _RunnerList()
