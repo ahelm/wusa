@@ -47,6 +47,13 @@ def _mock_wusa_basedir(tmp_path, monkeypatch):
     yield new_basedir
 
 
+@fixture(name="mocked_runners_json")
+def _mock_runners_json(mocked_wusa_base_dir):
+    runner_file = mocked_wusa_base_dir / "runners.json"
+    runner_file.touch()
+    yield runner_file
+
+
 def test_open_runner_file(mocked_wusa_base_dir):
     runner_file = mocked_wusa_base_dir / "runners.json"
 
@@ -57,22 +64,16 @@ def test_open_runner_file(mocked_wusa_base_dir):
     assert runner_file.read_text() == "something"
 
 
-def test__RunnerList_no_runners(mocked_wusa_base_dir):
-    runner_file = mocked_wusa_base_dir / "runners.json"
-    runner_file.touch()
-
-    runner_file.write_text(json.dumps([]))
+def test__RunnerList_no_runners(mocked_runners_json):
+    mocked_runners_json.write_text(json.dumps([]))
     assert len(_RunnersList()) == 0
 
 
-def test__RunnerList_one_runner(mocked_wusa_base_dir):
-    runner_file = mocked_wusa_base_dir / "runners.json"
-    runner_file.touch()
-
+def test__RunnerList_one_runner(mocked_runners_json):
     runner_dict = {
         "name": "somename",
         "repo": "some/repo",
         "labels": ["label1", "label2", "some_other_label"],
     }
-    runner_file.write_text(json.dumps([Runner(**runner_dict).as_dict()]))
+    mocked_runners_json.write_text(json.dumps([Runner(**runner_dict).as_dict()]))
     assert len(_RunnersList()) == 1
