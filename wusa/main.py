@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import timedelta
 from string import ascii_lowercase
 from time import sleep
+from typing import Generator
+from typing import List
 
 import typer
 from gidgethub import BadRequest
@@ -55,6 +57,31 @@ class Runner:
         return cls(name, repo_url, token)
 
 
+@dataclass
+class RunnerList:
+    runner_list: List[Runner]
+
+    @classmethod
+    def from_json(cls, json_str: str):
+        runners = json.loads(json_str)
+        runner_list = []
+
+        for runner in runners:
+            runner_list.append(
+                Runner(
+                    runner["name"],
+                    runner["repo_url"],
+                    runner["token"],
+                )
+            )
+
+        return cls(runner_list)
+
+    def __iter__(self) -> Generator[Runner, None, None]:
+        for runner in self.runner_list:
+            yield runner
+
+
 @app.command()
 def create(repo: str):
     try:
@@ -85,6 +112,42 @@ def create(repo: str):
 
     wusa_container.commit(repository=f"{new_runner.name}", tag="latest")
     wusa_container.remove()
+
+
+@app.command()
+def up(runner_name: str):
+    runners = RunnerList.from_json(WUSA_RUNNER_FILE.read_text())
+
+    for runner in runners:
+        if runner_name == runner.name:
+            valid_runner = runner
+            break
+    else:
+        typer.secho(
+            f"'{runner_name}' not found in the list of runners",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(2)
+
+    container = wusa_client.containers.run(
+        valid_runner.name,
+        "./run.sh",
+        name=valid_runner.name,
+        detach=True,
+    )
+
+    for line in container.logs(stream=True):
+        cleaned_line = line.decode("utf-8").strip()
+        if cleaned_line:
+            if "Listening for Jobs" in cleaned_line:
+                break
+
+            if "Retrying until reconnected" in cleaned_line:
+                print("Reconnecting ...")
+                continue
+
+            print(cleaned_line)
 
 
 @app.command(name="list", short_help="List all runners")
