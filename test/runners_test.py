@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from string import ascii_lowercase
 
+from pytest import fixture
+
 from wusa.runners import Runner
+from wusa.runners import open_runner_file
 
 
 def test_Runner_init():
@@ -33,3 +36,21 @@ def test_Runner_as_dict():
         "labels": ["label1", "label2", "some_other_label"],
     }
     assert runner.as_dict() == expected_dict
+
+
+@fixture(name="mocked_wusa_base_dir")
+def _mock_wusa_basedir(tmp_path, monkeypatch):
+    new_basedir = tmp_path / "wusa-new-basedir"
+    new_basedir.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr("wusa.runners.WUSA_BASE_DIR", new_basedir)
+    yield new_basedir
+
+
+def test_open_runner_file(mocked_wusa_base_dir):
+    runner_file = mocked_wusa_base_dir / "runners.json"
+
+    with open_runner_file("w") as fp:
+        fp.write("something")
+
+    assert runner_file.exists()
+    assert runner_file.read_text() == "something"

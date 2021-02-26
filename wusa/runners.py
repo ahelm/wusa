@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from contextlib import contextmanager
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
 from string import ascii_lowercase
+from typing import IO
 from typing import Dict
+from typing import Generator
 from typing import List
 from typing import Union
 
@@ -11,8 +14,15 @@ from shortuuid import ShortUUID
 
 from . import WUSA_BASE_DIR
 
-WUSA_RUNNER_FILE = WUSA_BASE_DIR / "runner.json"
 UUID = ShortUUID(alphabet=ascii_lowercase)
+
+
+@contextmanager
+def open_runner_file(mode: str) -> Generator[IO, None, None]:
+    runner_file = WUSA_BASE_DIR / "runners.json"
+    runner_file.touch()
+    with runner_file.open(mode) as fp:
+        yield fp
 
 
 @dataclass
