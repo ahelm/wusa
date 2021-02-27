@@ -28,6 +28,7 @@ def wusa_docker_run(
     command: str,
     image: str,
     logger: Optional[Logger] = None,
+    substring_to_finish_logging: Optional[str] = None,
 ) -> DockerClient.containers:
     client = get_client()
     try:
@@ -37,8 +38,12 @@ def wusa_docker_run(
             return container
 
         for line in container.logs(stream=True):
-            if decoded_cleaned_line := line.decode("utf-8").strip():
+            decoded_cleaned_line = line.decode("utf-8").strip()
+            if decoded_cleaned_line:
                 logger.log(decoded_cleaned_line)
+
+            if decoded_cleaned_line == substring_to_finish_logging:
+                break
 
         return container
 

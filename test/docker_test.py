@@ -113,7 +113,11 @@ def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
 
 
 def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
-    messages = [b"some byte string with newline\n"]
+    messages = [
+        b"some byte string with newline\n",
+        b"should return\n",
+        b"SHOULD BE ABSENT",
+    ]
     clean_messages = [s.decode("utf-8").strip() for s in messages]
 
     def docker_logs(**kwargs):
@@ -125,13 +129,20 @@ def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
 
     class Logger:
         def log(self, message):
+            if message == "SHOULD BE ABSENT":
+                raise ValueError
+
             if message not in clean_messages:
                 raise NotImplementedError
 
     patched_DockerClient.containers.logs = docker_logs
 
-    with raises(HasBeenCalled):
-        wusa_docker_run("somme_command", "some_image", logger=Logger())
+    wusa_docker_run(
+        "somme_command",
+        "some_image",
+        logger=Logger(),
+        substring_to_finish_logging="should return",
+    )
 
 
 def test_wusa_docker_commit():
