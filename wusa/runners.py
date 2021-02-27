@@ -51,7 +51,7 @@ class Runner:
 
 class RunnersList:
     @property
-    def _runner_list(self) -> List[Runner]:
+    def _runners(self) -> List[Runner]:
         with open_runner_file(mode="r") as fp:
             raw_list = loads(fp.read())
 
@@ -61,8 +61,8 @@ class RunnersList:
 
         return runner_list
 
-    @_runner_list.setter
-    def _runner_list(self, list_runners: List[Runner]) -> None:
+    @_runners.setter
+    def _runners(self, list_runners: List[Runner]) -> None:
         processed_list = []
         for runner in list_runners:
             processed_list.append(runner.as_dict())
@@ -71,16 +71,16 @@ class RunnersList:
             fp.write(dumps(processed_list))
 
     def __len__(self) -> int:
-        return len(self._runner_list)
+        return len(self._runners)
 
     def __getitem__(self, key: int) -> Runner:
-        return self._runner_list[key]
+        return self._runners[key]
 
     def create_new_runner(self, repo: str, labels: List[str] = []) -> None:
-        runners = self._runner_list
+        runners = self._runners
         new_runner = Runner.new(repo, labels)
         runners.append(new_runner)
-        self._runner_list = runners
+        self._runners = runners
 
 
 Runners = RunnersList()
