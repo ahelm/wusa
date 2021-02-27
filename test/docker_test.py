@@ -7,6 +7,7 @@ from pytest import raises
 
 from wusa.docker import get_client
 from wusa.docker import wusa_docker_commit
+from wusa.docker import wusa_docker_remove
 from wusa.docker import wusa_docker_run
 from wusa.exceptions import DockerError
 from wusa.exceptions import NoDockerServerFound
@@ -153,3 +154,23 @@ def test_wusa_docker_commit_raises_DockerError():
 
     with raises(DockerError, match="Error during commit encountered"):
         wusa_docker_commit(DummyContainer(), "new_image_name")
+
+
+def test_wusa_docker_remove():
+    class DummyContainer:
+        @staticmethod
+        def remove():
+            raise HasBeenCalled
+
+    with raises(HasBeenCalled):
+        wusa_docker_remove(DummyContainer())
+
+
+def test_wusa_docker_remove_raises_DockerError():
+    class DummyContainer:
+        @staticmethod
+        def remove():
+            raise APIError(message="")
+
+    with raises(DockerError, match="Error during remove encountered"):
+        wusa_docker_remove(DummyContainer())

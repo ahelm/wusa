@@ -59,3 +59,12 @@ def wusa_docker_commit(
         container.commit(repository=image_name, tag=tag)
     except APIError:
         raise DockerError("Error during commit encountered")
+
+
+def wusa_docker_remove(
+    container: DockerClient.containers,
+) -> None:
+    try:
+        container.remove()
+    except APIError:
+        raise DockerError("Error during remove encountered")
