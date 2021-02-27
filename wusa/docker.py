@@ -47,7 +47,7 @@ def wusa_docker_run(
     except ImageNotFound:
         raise DockerError(f"Image '{image}' not found")
     except APIError:
-        raise DockerError("During run an error with docker occurred")
+        raise DockerError("Error during run encountered")
 
 
 def wusa_docker_commit(

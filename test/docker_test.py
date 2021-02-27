@@ -98,7 +98,7 @@ def test_wusa_docker_run_catches_APIError(patched_DockerClient):
         raise APIError(message="")
 
     patched_DockerClient.containers.run = raise_APIError
-    with raises(DockerError, match="error with docker occurred"):
+    with raises(DockerError, match="Error during run encountered"):
         wusa_docker_run("", "some_image")
 
 
