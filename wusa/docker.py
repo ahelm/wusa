@@ -29,6 +29,7 @@ def wusa_docker_run(
     image: str = "wusarunner/base-linux:latest",
     wait_for_completion: bool = False,
     logger: Optional[Logger] = None,
+    commit_as: Optional[str] = None,
 ) -> None:
     client = get_client()
     try:
@@ -39,6 +40,9 @@ def wusa_docker_run(
                     logger.log(decoded_cleaned_line)
         elif wait_for_completion:
             container.wait()
+
+        if commit_as:
+            container.commit(repository=commit_as, tag="latest")
 
     # ATTENTION: ImageNotFound requires to be raised before APIError
     #            inheritance order (ImageNotFound <- NotFound <- APIError)

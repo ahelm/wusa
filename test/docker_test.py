@@ -143,4 +143,11 @@ def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
 
 
 def test_wusa_docker_run_commits_new_image(patched_DockerClient):
-    pass
+    def commit(repository=None, tag=None, **kwargs):
+        assert repository == "as_some_image"
+        assert tag == "latest"
+        raise HasBeenCalled
+
+    patched_DockerClient.containers.commit = commit
+    with raises(HasBeenCalled):
+        wusa_docker_run("some_command", commit_as="as_some_image")
