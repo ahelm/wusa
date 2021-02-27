@@ -47,7 +47,7 @@ def wusa_docker_run(
     except ImageNotFound:
         raise DockerError(f"Image '{image}' not found")
     except APIError:
-        raise DockerError("Error during run encountered")
+        raise DockerError("Error during 'docker run' encountered")
 
 
 def wusa_docker_commit(
@@ -58,7 +58,7 @@ def wusa_docker_commit(
     try:
         container.commit(repository=image_name, tag=tag)
     except APIError:
-        raise DockerError("Error during commit encountered")
+        raise DockerError("Error during 'docker commit' encountered")
 
 
 def wusa_docker_remove(
@@ -67,4 +67,4 @@ def wusa_docker_remove(
     try:
         container.remove()
     except APIError:
-        raise DockerError("Error during remove encountered")
+        raise DockerError("Error during 'docker remove' encountered")

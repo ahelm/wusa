@@ -99,7 +99,7 @@ def test_wusa_docker_run_catches_APIError(patched_DockerClient):
         raise APIError(message="")
 
     patched_DockerClient.containers.run = raise_APIError
-    with raises(DockerError, match="Error during run encountered"):
+    with raises(DockerError, match="Error during 'docker run' encountered"):
         wusa_docker_run("", "some_image")
 
 
@@ -152,7 +152,7 @@ def test_wusa_docker_commit_raises_DockerError():
         def commit(repository=None, tag=None):
             raise APIError(message="")
 
-    with raises(DockerError, match="Error during commit encountered"):
+    with raises(DockerError, match="Error during 'docker commit' encountered"):
         wusa_docker_commit(DummyContainer(), "new_image_name")
 
 
@@ -172,5 +172,5 @@ def test_wusa_docker_remove_raises_DockerError():
         def remove():
             raise APIError(message="")
 
-    with raises(DockerError, match="Error during remove encountered"):
+    with raises(DockerError, match="Error during 'docker remove' encountered"):
         wusa_docker_remove(DummyContainer())
