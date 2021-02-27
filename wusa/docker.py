@@ -26,23 +26,21 @@ def get_client() -> DockerClient:
 
 def wusa_docker_run(
     command: str,
-    image: str = "wusarunner/base-linux:latest",
-    wait_for_completion: bool = False,
+    image: str,
     logger: Optional[Logger] = None,
-    commit_as: Optional[str] = None,
-) -> None:
+) -> DockerClient.containers:
     client = get_client()
     try:
         container = client.containers.run(image, command=command, detach=True)
-        if logger:
-            for line in container.logs(stream=True):
-                if decoded_cleaned_line := line.decode("utf-8").strip():
-                    logger.log(decoded_cleaned_line)
-        elif wait_for_completion:
-            container.wait()
 
-        if commit_as:
-            container.commit(repository=commit_as, tag="latest")
+        if not logger:
+            return container
+
+        for line in container.logs(stream=True):
+            if decoded_cleaned_line := line.decode("utf-8").strip():
+                logger.log(decoded_cleaned_line)
+
+        return container
 
     # ATTENTION: ImageNotFound requires to be raised before APIError
     #            inheritance order (ImageNotFound <- NotFound <- APIError)
