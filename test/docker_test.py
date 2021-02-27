@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from docker.errors import DockerException
+from pytest import fixture
 from pytest import raises
 
 from wusa.docker import get_client
+from wusa.docker import wusa_docker_run
 from wusa.exceptions import NoDockerServerFound
 
 
@@ -29,3 +31,44 @@ def test_get_client_raises_NoClient(monkeypatch):
 
     with raises(NoDockerServerFound, match="failed to connect to docker"):
         get_client()
+
+
+@fixture(name="patched_DockerClient")
+def _mock_DockerClient(monkeypatch):
+    class DockerContainers:
+        @staticmethod
+        def run(*arg, **kwargs):
+            raise NotImplementedError
+
+    class DockerClient:
+        containers = DockerContainers()
+
+    patched_client = DockerClient()
+
+    def return_patched_client():
+        return patched_client
+
+    monkeypatch.setattr("wusa.docker.from_env", return_patched_client)
+    yield patched_client
+
+
+def test_wusa_docker_run_check_mocking(patched_DockerClient):
+    class WhenCalled(Exception):
+        pass
+
+    def raise_when_called(*args, **kwargs):
+        raise WhenCalled
+
+    patched_DockerClient.containers.run = raise_when_called
+
+    with raises(WhenCalled):
+        wusa_docker_run("command")
+
+
+def test_wusa_docker_run_check_args(patched_DockerClient):
+    def check_args_and_kwargs(*args, **kwargs):
+        assert args == ("wusarunner/base-linux:latest",)
+        assert kwargs == {"command": "some command", "detach": True}
+
+    patched_DockerClient.containers.run = check_args_and_kwargs
+    wusa_docker_run("some command")
