@@ -48,3 +48,14 @@ def wusa_docker_run(
         raise DockerError(f"Image '{image}' not found")
     except APIError:
         raise DockerError("During run an error with docker occurred")
+
+
+def wusa_docker_commit(
+    container: DockerClient.containers,
+    image_name: str,
+    tag: str = "latest",
+) -> None:
+    try:
+        container.commit(repository=image_name, tag=tag)
+    except APIError:
+        raise DockerError("Error during commit encountered")

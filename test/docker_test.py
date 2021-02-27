@@ -6,6 +6,7 @@ from pytest import fixture
 from pytest import raises
 
 from wusa.docker import get_client
+from wusa.docker import wusa_docker_commit
 from wusa.docker import wusa_docker_run
 from wusa.exceptions import DockerError
 from wusa.exceptions import NoDockerServerFound
@@ -130,3 +131,25 @@ def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
 
     with raises(HasBeenCalled):
         wusa_docker_run("somme_command", "some_image", logger=Logger())
+
+
+def test_wusa_docker_commit():
+    class DummyContainer:
+        @staticmethod
+        def commit(repository=None, tag=None):
+            assert repository == "new_image_name"
+            assert tag == "new_tag"
+            raise HasBeenCalled
+
+    with raises(HasBeenCalled):
+        wusa_docker_commit(DummyContainer(), "new_image_name", "new_tag")
+
+
+def test_wusa_docker_commit_raises_DockerError():
+    class DummyContainer:
+        @staticmethod
+        def commit(repository=None, tag=None):
+            raise APIError(message="")
+
+    with raises(DockerError, match="Error during commit encountered"):
+        wusa_docker_commit(DummyContainer(), "new_image_name")
