@@ -59,7 +59,11 @@ def _mock_DockerClient(monkeypatch):
     def return_patched_client():
         return patched_client
 
+    def return_container_of_patched_client(*args, **kwargs):
+        return patched_client.containers
+
     monkeypatch.setattr("wusa.docker.from_env", return_patched_client)
+    patched_client.containers.run = return_container_of_patched_client
     yield patched_client
 
 
@@ -107,13 +111,9 @@ def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
 
 
 def test_wusa_docker_run_calls_docker_wait(patched_DockerClient):
-    def return_container(*args, **kwargs):
-        return patched_DockerClient.containers
-
     def raise_HasBeenCalled():
         raise HasBeenCalled
 
-    patched_DockerClient.containers.run = return_container
     patched_DockerClient.containers.wait = raise_HasBeenCalled
 
     with raises(HasBeenCalled):
@@ -123,9 +123,6 @@ def test_wusa_docker_run_calls_docker_wait(patched_DockerClient):
 def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
     messages = [b"some byte string with newline\n"]
     clean_messages = [s.decode("utf-8").strip() for s in messages]
-
-    def return_container(*args, **kwargs):
-        return patched_DockerClient.containers
 
     def docker_logs(**kwargs):
         assert "stream" in kwargs
@@ -139,7 +136,6 @@ def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
             if message not in clean_messages:
                 raise NotImplementedError
 
-    patched_DockerClient.containers.run = return_container
     patched_DockerClient.containers.logs = docker_logs
 
     with raises(HasBeenCalled):
