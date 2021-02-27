@@ -12,6 +12,9 @@ def test_get_client(monkeypatch):
     def mocked_from_env():
         return "success"
 
+    # TODO: check if this can be done better
+    #   - monkey patch requires to mock the function call inside 'wusa.docker'
+    #   - better approach would be to mock 'docker.from_env' directly
     monkeypatch.setattr("wusa.docker.from_env", mocked_from_env)
     assert get_client() == "success"
 
