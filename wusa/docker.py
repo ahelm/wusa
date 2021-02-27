@@ -12,8 +12,8 @@ from .exceptions import DockerError
 from .exceptions import NoDockerServerFound
 
 
-class ConsoleInterface(Protocol):
-    def print(self, *args, **kwargs) -> None:
+class Logger(Protocol):
+    def log(self, *args, **kwargs) -> None:
         ...
 
 
@@ -27,11 +27,18 @@ def get_client() -> DockerClient:
 def wusa_docker_run(
     command: str,
     image: str = "wusarunner/base-linux:latest",
-    console: Optional[ConsoleInterface] = None,
+    logger: Optional[Logger] = None,
 ) -> None:
     client = get_client()
     try:
-        client.containers.run(image, command=command, detach=True)
+        container = client.containers.run(image, command=command, detach=True)
+        if logger:
+            for line in container.logs(stream=True):
+                if decoded_cleaned_line := line.decode("utf-8").strip():
+                    logger.log(decoded_cleaned_line)
+        else:
+            container.wait()
+
     # ATTENTION: ImageNotFound requires to be raised before APIError
     #            inheritance order (ImageNotFound <- NotFound <- APIError)
     except ImageNotFound:

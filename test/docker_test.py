@@ -38,13 +38,21 @@ def test_get_client_raises_NoClient(monkeypatch):
 
 @fixture(name="patched_DockerClient")
 def _mock_DockerClient(monkeypatch):
-    class DockerContainers:
+    class DockerContainer:
         @staticmethod
         def run(*arg, **kwargs):
             raise NotImplementedError
 
+        @staticmethod
+        def wait(*args, **kwargs):
+            raise NotImplementedError
+
+        @staticmethod
+        def logs(*args, **kwargs):
+            raise NotImplementedError
+
     class DockerClient:
-        containers = DockerContainers()
+        containers = DockerContainer()
 
     patched_client = DockerClient()
 
@@ -55,25 +63,29 @@ def _mock_DockerClient(monkeypatch):
     yield patched_client
 
 
-def test_wusa_docker_run_check_mocking(patched_DockerClient):
-    class WhenCalled(Exception):
-        pass
+class HasBeenCalled(Exception):
+    pass
 
+
+def test_wusa_docker_run_check_mocking(patched_DockerClient):
     def raise_when_called(*args, **kwargs):
-        raise WhenCalled
+        raise HasBeenCalled
 
     patched_DockerClient.containers.run = raise_when_called
 
-    with raises(WhenCalled):
+    with raises(HasBeenCalled):
         wusa_docker_run("command")
 
 
-def test_wusa_docker_run_check_args(patched_DockerClient):
+def test_wusa_docker_run_calls_docker_run(patched_DockerClient):
     def check_args_and_kwargs(*args, **kwargs):
         assert args == ("wusarunner/base-linux:latest",)
         assert kwargs == {"command": "some command", "detach": True}
+        return patched_DockerClient.containers  # run should return DockerContainer
 
     patched_DockerClient.containers.run = check_args_and_kwargs
+    patched_DockerClient.containers.wait = lambda: None
+
     wusa_docker_run("some command")
 
 
@@ -93,3 +105,43 @@ def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
     patched_DockerClient.containers.run = raise_ImageNotFound
     with raises(DockerError, match="Image 'some_image' not found"):
         wusa_docker_run("", image="some_image")
+
+
+def test_wusa_docker_run_calls_docker_wait(patched_DockerClient):
+    def return_container(*args, **kwargs):
+        return patched_DockerClient.containers
+
+    def raise_HasBeenCalled():
+        raise HasBeenCalled
+
+    patched_DockerClient.containers.run = return_container
+    patched_DockerClient.containers.wait = raise_HasBeenCalled
+
+    with raises(HasBeenCalled):
+        wusa_docker_run("some_command")
+
+
+def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
+    messages = [b"some byte string with newline\n"]
+    clean_messages = [s.decode("utf-8").strip() for s in messages]
+
+    def return_container(*args, **kwargs):
+        return patched_DockerClient.containers
+
+    def docker_logs(**kwargs):
+        assert "stream" in kwargs
+        assert kwargs["stream"]
+        for message in messages:
+            yield message
+        raise HasBeenCalled
+
+    class Logger:
+        def log(self, message):
+            if message not in clean_messages:
+                raise NotImplementedError
+
+    patched_DockerClient.containers.run = return_container
+    patched_DockerClient.containers.logs = docker_logs
+
+    with raises(HasBeenCalled):
+        wusa_docker_run("somme_command", logger=Logger())
