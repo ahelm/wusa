@@ -27,12 +27,18 @@ def get_client() -> DockerClient:
 def wusa_docker_run(
     command: str,
     image: str,
+    name: str,
     logger: Optional[Logger] = None,
     substring_to_finish_logging: Optional[str] = None,
 ) -> DockerClient.containers:
     client = get_client()
     try:
-        container = client.containers.run(image, command=command, detach=True)
+        container = client.containers.run(
+            image,
+            command=command,
+            detach=True,
+            labels={"org.wusa.container-name": name},
+        )
 
         if not logger:
             return container

@@ -80,18 +80,22 @@ def test_wusa_docker_run_check_mocking(patched_DockerClient):
     patched_DockerClient.containers.run = raise_when_called
 
     with raises(HasBeenCalled):
-        wusa_docker_run("command", "some_image")
+        wusa_docker_run("command", "some_image", "some_name")
 
 
 def test_wusa_docker_run_calls_docker_run(patched_DockerClient):
     def check_args_and_kwargs(*args, **kwargs):
         assert args == ("some_image",)
-        assert kwargs == {"command": "some command", "detach": True}
+        assert kwargs == {
+            "command": "some command",
+            "detach": True,
+            "labels": {"org.wusa.container-name": "some_name"},
+        }
         return patched_DockerClient.containers  # run should return DockerContainer
 
     patched_DockerClient.containers.run = check_args_and_kwargs
 
-    wusa_docker_run("some command", "some_image")
+    wusa_docker_run("some command", "some_image", "some_name")
 
 
 def test_wusa_docker_run_catches_APIError(patched_DockerClient):
@@ -100,7 +104,7 @@ def test_wusa_docker_run_catches_APIError(patched_DockerClient):
 
     patched_DockerClient.containers.run = raise_APIError
     with raises(DockerError, match="Error during 'docker run' encountered"):
-        wusa_docker_run("", "some_image")
+        wusa_docker_run("", "some_image", "some_name")
 
 
 def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
@@ -109,7 +113,7 @@ def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
 
     patched_DockerClient.containers.run = raise_ImageNotFound
     with raises(DockerError, match="Image 'some_image' not found"):
-        wusa_docker_run("", image="some_image")
+        wusa_docker_run("", "some_image", "some_name")
 
 
 def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
@@ -140,6 +144,7 @@ def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
     wusa_docker_run(
         "somme_command",
         "some_image",
+        "some_name",
         logger=Logger(),
         substring_to_finish_logging="should return",
     )
