@@ -91,5 +91,5 @@ def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
         raise ImageNotFound("")
 
     patched_DockerClient.containers.run = raise_ImageNotFound
-    with raises(DockerError, match="Image not found"):
-        wusa_docker_run("")
+    with raises(DockerError, match="Image 'some_image' not found"):
+        wusa_docker_run("", image="some_image")
