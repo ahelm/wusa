@@ -2,11 +2,13 @@
 from docker.errors import APIError
 from docker.errors import DockerException
 from docker.errors import ImageNotFound
+from docker.errors import NotFound
 from pytest import fixture
 from pytest import raises
 
 from wusa.docker import get_client
 from wusa.docker import wusa_docker_commit
+from wusa.docker import wusa_docker_get
 from wusa.docker import wusa_docker_remove
 from wusa.docker import wusa_docker_run
 from wusa.exceptions import DockerError
@@ -190,3 +192,48 @@ def test_wusa_docker_remove_raises_DockerError():
 
     with raises(DockerError, match="Error during 'docker remove' encountered"):
         wusa_docker_remove(DummyContainer())
+
+
+def test_wusa_docker_get(patched_DockerClient):
+    class Container:
+        labels = {"org.wusa.container-name": "wusa-abcdefgh"}
+        name = "some_name"
+
+    def function_to_get_container(name: str):
+        return Container()
+
+    patched_DockerClient.containers.get = function_to_get_container
+    assert isinstance(wusa_docker_get("some_name"), Container)
+    assert wusa_docker_get("some_name").name == "some_name"
+    assert wusa_docker_get("some_name").labels == Container.labels
+
+
+def test_wusa_docker_get_raise_when_invalid_wusa_container(patched_DockerClient):
+    class Container:
+        labels = {}
+        name = "some_name"
+
+    def function_to_get_container(name: str):
+        return Container()
+
+    patched_DockerClient.containers.get = function_to_get_container
+    with raises(DockerError, match="No valid wusa container 'some_name' found"):
+        wusa_docker_get("some_name")
+
+
+def test_wusa_docker_get_when_NotFound(patched_DockerClient):
+    def raises_NotFound(name: str):
+        raise NotFound("")
+
+    patched_DockerClient.containers.get = raises_NotFound
+    with raises(DockerError, match="Did not find container 'does_not_exist'"):
+        wusa_docker_get("does_not_exist")
+
+
+def test_wusa_docker_get_when_APIError(patched_DockerClient):
+    def raises_APIError(name: str):
+        raise APIError("")
+
+    patched_DockerClient.containers.get = raises_APIError
+    with raises(DockerError, match="Error encountered while trying to get container"):
+        wusa_docker_get("does_not_exist")
