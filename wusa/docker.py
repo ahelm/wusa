@@ -4,8 +4,11 @@ from typing import Protocol
 
 from docker import from_env
 from docker.client import DockerClient
+from docker.errors import APIError
 from docker.errors import DockerException
+from docker.errors import ImageNotFound
 
+from .exceptions import DockerError
 from .exceptions import NoDockerServerFound
 
 
@@ -29,5 +32,9 @@ def wusa_docker_run(
     client = get_client()
     try:
         client.containers.run(image, command=command, detach=True)
-    except NotImplementedError:
-        pass
+    # ATTENTION: ImageNotFound requires to be raised before APIError
+    #            inheritance order (ImageNotFound <- NotFound <- APIError)
+    except ImageNotFound:
+        raise DockerError(f"Image '{image}' not found")
+    except APIError:
+        raise DockerError("During run an error with docker occurred")

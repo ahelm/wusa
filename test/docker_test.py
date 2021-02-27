@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+from docker.errors import APIError
 from docker.errors import DockerException
+from docker.errors import ImageNotFound
 from pytest import fixture
 from pytest import raises
 
 from wusa.docker import get_client
 from wusa.docker import wusa_docker_run
+from wusa.exceptions import DockerError
 from wusa.exceptions import NoDockerServerFound
 
 
@@ -72,3 +75,21 @@ def test_wusa_docker_run_check_args(patched_DockerClient):
 
     patched_DockerClient.containers.run = check_args_and_kwargs
     wusa_docker_run("some command")
+
+
+def test_wusa_docker_run_catches_APIError(patched_DockerClient):
+    def raise_APIError(*args, **kwargs):
+        raise APIError("")
+
+    patched_DockerClient.containers.run = raise_APIError
+    with raises(DockerError, match="error with docker occurred"):
+        wusa_docker_run("")
+
+
+def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
+    def raise_ImageNotFound(*args, **kwargs):
+        raise ImageNotFound("")
+
+    patched_DockerClient.containers.run = raise_ImageNotFound
+    with raises(DockerError, match="Image not found"):
+        wusa_docker_run("")
