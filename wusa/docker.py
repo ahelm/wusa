@@ -27,6 +27,7 @@ def get_client() -> DockerClient:
 def wusa_docker_run(
     command: str,
     image: str = "wusarunner/base-linux:latest",
+    wait_for_completion: bool = False,
     logger: Optional[Logger] = None,
 ) -> None:
     client = get_client()
@@ -36,7 +37,7 @@ def wusa_docker_run(
             for line in container.logs(stream=True):
                 if decoded_cleaned_line := line.decode("utf-8").strip():
                     logger.log(decoded_cleaned_line)
-        else:
+        elif wait_for_completion:
             container.wait()
 
     # ATTENTION: ImageNotFound requires to be raised before APIError

@@ -84,7 +84,6 @@ def test_wusa_docker_run_calls_docker_run(patched_DockerClient):
         return patched_DockerClient.containers  # run should return DockerContainer
 
     patched_DockerClient.containers.run = check_args_and_kwargs
-    patched_DockerClient.containers.wait = lambda: None
 
     wusa_docker_run("some command")
 
@@ -118,7 +117,7 @@ def test_wusa_docker_run_calls_docker_wait(patched_DockerClient):
     patched_DockerClient.containers.wait = raise_HasBeenCalled
 
     with raises(HasBeenCalled):
-        wusa_docker_run("some_command")
+        wusa_docker_run("some_command", wait_for_completion=True)
 
 
 def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
@@ -145,3 +144,7 @@ def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
 
     with raises(HasBeenCalled):
         wusa_docker_run("somme_command", logger=Logger())
+
+
+def test_wusa_docker_run_commits_new_image(patched_DockerClient):
+    pass
