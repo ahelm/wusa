@@ -110,17 +110,27 @@ def create(repo: str):
 
     with console.status("Creating new runner"):
         try:
-            Runners.create_new_runner(repo, runner_registration["token"])
-        except DockerError as e:
+            new_runner = Runners.create_new_runner(repo, runner_registration["token"])
+        except DockerError as exc:
             print_error("During runner creation an error occurred")
-            print_error(e)
+            print_error(exc)
             raise typer.Exit(-2)
-        except RunnerFileIOError as e:
+        except RunnerFileIOError as exc:
             print_error("An issue with the runner config file occurred")
-            print_error(e)
+            print_error(exc)
             raise typer.Exit(-2)
 
-    success(f"Runner '[bold white]{Runners[-1].name}[/bold white]' created")
+    success(f"Runner '[bold white]{new_runner.name}[/bold white]' created")
+
+    with console.status("Starting up new runner"):
+        try:
+            new_runner.up()
+        except DockerError as exc:
+            print_error("An error occurred during runner startup")
+            print_error(exc)
+            raise typer.Exit(-2)
+
+    success(f"Runner '[bold white]{new_runner.name}[/bold white]' is up and running")
 
 
 @app.command()

@@ -53,6 +53,14 @@ class Runner:
     def as_dict(self) -> Dict[str, Union[str, List[str]]]:
         return asdict(self)
 
+    def up(self) -> None:
+        wusa_docker_run(
+            "bash -c './run.sh'",
+            self.name,
+            self.name,
+            stop_logging_substr="Listening for Jobs",
+        )
+
 
 class RunnersList:
     @property
@@ -91,7 +99,12 @@ class RunnersList:
     def __getitem__(self, key: int) -> Runner:
         return self._runners[key]
 
-    def create_new_runner(self, repo: str, token: str, labels: List[str] = []) -> None:
+    def create_new_runner(
+        self,
+        repo: str,
+        token: str,
+        labels: List[str] = [],
+    ) -> Runner:
         runners = self._runners
         new_runner = Runner.new(repo, labels)
         cmd = (
@@ -109,6 +122,8 @@ class RunnersList:
         wusa_docker_remove(container)
         runners.append(new_runner)
         self._runners = runners
+
+        return new_runner
 
 
 Runners = RunnersList()

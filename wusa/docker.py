@@ -45,7 +45,7 @@ def wusa_docker_run(
     command: str,
     image: str,
     name: str,
-    substring_to_finish_logging: Optional[str] = None,
+    stop_logging_substr: Optional[str] = None,
 ) -> Container:
     client = get_client()
     try:
@@ -53,6 +53,7 @@ def wusa_docker_run(
             image,
             command=command,
             detach=True,
+            name=name,
             labels={"org.wusa.container-name": name},
         )
 
@@ -61,7 +62,7 @@ def wusa_docker_run(
             if decoded_cleaned_line:
                 silent_print(decoded_cleaned_line)
 
-            if decoded_cleaned_line == substring_to_finish_logging:
+            if stop_logging_substr and stop_logging_substr in decoded_cleaned_line:
                 break
 
         return container
