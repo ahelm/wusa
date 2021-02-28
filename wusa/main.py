@@ -28,6 +28,8 @@ from wusa.utils import print_error
 
 from .exceptions import DockerError
 from .exceptions import RunnerFileIOError
+from .output import console
+from .output import success
 from .runners import Runners
 
 app = typer.Typer()
@@ -92,45 +94,33 @@ class RunnerList:
 
 @app.command()
 def create(repo: str):
-    try:
-        runner_registration = post_gh_api(
-            f"/repos/{repo}/actions/runners/registration-token"
-        )
-    except BadRequest:
-        typer.secho(
-            "Issue obtaining 'registration-token'",
-            fg=typer.colors.RED,
-            err=True,
-        )
-        raise typer.Exit(2)
+    with console.status("Obtaining registration token for runner"):
+        try:
+            runner_registration = post_gh_api(
+                f"/repos/{repo}/actions/runners/registration-token"
+            )
+        except BadRequest:
+            typer.secho(
+                "Issue obtaining 'registration-token'",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(2)
+    success("Token for runner registration obtained")
 
-    try:
-        Runners.create_new_runner(repo, runner_registration["token"])
-    except DockerError as e:
-        print_error("During runner creation an error occurred")
-        print_error(e)
-        raise typer.Exit(-2)
-    except RunnerFileIOError as e:
-        print_error("An issue with the runner config file occurred")
-        print_error(e)
-        raise typer.Exit(-2)
+    with console.status("Creating new runner"):
+        try:
+            Runners.create_new_runner(repo, runner_registration["token"])
+        except DockerError as e:
+            print_error("During runner creation an error occurred")
+            print_error(e)
+            raise typer.Exit(-2)
+        except RunnerFileIOError as e:
+            print_error("An issue with the runner config file occurred")
+            print_error(e)
+            raise typer.Exit(-2)
 
-    # new_runner = Runner.new(repo, runner_registration["token"])
-    # new_runner.save()
-
-    # wusa_container = wusa_client.containers.run(
-    #     "wusarunner/base-linux:latest",
-    #     command=new_runner.config_cmd,
-    #     detach=True,
-    # )
-
-    # for line in wusa_container.logs(stream=True):
-    #     cleaned_line = line.decode("utf-8").strip()
-    #     if cleaned_line:
-    #         print(cleaned_line)
-
-    # wusa_container.commit(repository=f"{new_runner.name}", tag="latest")
-    # wusa_container.remove()
+    success(f"Runner '[bold white]{Runners[-1].name}[/bold white]' created")
 
 
 @app.command()

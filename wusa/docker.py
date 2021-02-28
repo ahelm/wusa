@@ -12,6 +12,7 @@ from docker.models.containers import Container
 
 from .exceptions import DockerError
 from .exceptions import NoDockerServerFound
+from .output import silent_print
 
 
 class Logger(Protocol):
@@ -44,7 +45,6 @@ def wusa_docker_run(
     command: str,
     image: str,
     name: str,
-    logger: Optional[Logger] = None,
     substring_to_finish_logging: Optional[str] = None,
 ) -> Container:
     client = get_client()
@@ -56,13 +56,10 @@ def wusa_docker_run(
             labels={"org.wusa.container-name": name},
         )
 
-        if not logger:
-            return container
-
         for line in container.logs(stream=True):
             decoded_cleaned_line = line.decode("utf-8").strip()
             if decoded_cleaned_line:
-                logger.log(decoded_cleaned_line)
+                silent_print(decoded_cleaned_line)
 
             if decoded_cleaned_line == substring_to_finish_logging:
                 break

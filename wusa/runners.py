@@ -105,7 +105,6 @@ class RunnersList:
         container = wusa_docker_run(
             f"bash -c '{cmd}'", "wusarunner/base-linux:latest", new_runner.name
         )
-        container.wait()
         wusa_docker_commit(container, new_runner.name)
         wusa_docker_remove(container)
         runners.append(new_runner)

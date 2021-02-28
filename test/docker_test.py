@@ -93,11 +93,12 @@ def test_wusa_docker_run_calls_docker_run(patched_DockerClient):
             "detach": True,
             "labels": {"org.wusa.container-name": "some_name"},
         }
-        return patched_DockerClient.containers  # run should return DockerContainer
+        raise HasBeenCalled
 
     patched_DockerClient.containers.run = check_args_and_kwargs
 
-    wusa_docker_run("some command", "some_image", "some_name")
+    with raises(HasBeenCalled):
+        wusa_docker_run("some command", "some_image", "some_name")
 
 
 def test_wusa_docker_run_catches_APIError(patched_DockerClient):
@@ -116,40 +117,6 @@ def test_wusa_docker_run_catches_ImageNotFound(patched_DockerClient):
     patched_DockerClient.containers.run = raise_ImageNotFound
     with raises(DockerError, match="Image 'some_image' not found"):
         wusa_docker_run("", "some_image", "some_name")
-
-
-def test_wusa_docker_run_calls_container_logs(patched_DockerClient):
-    messages = [
-        b"some byte string with newline\n",
-        b"should return\n",
-        b"SHOULD BE ABSENT",
-    ]
-    clean_messages = [s.decode("utf-8").strip() for s in messages]
-
-    def docker_logs(**kwargs):
-        assert "stream" in kwargs
-        assert kwargs["stream"]
-        for message in messages:
-            yield message
-        raise HasBeenCalled
-
-    class Logger:
-        def log(self, message):
-            if message == "SHOULD BE ABSENT":
-                raise ValueError
-
-            if message not in clean_messages:
-                raise NotImplementedError
-
-    patched_DockerClient.containers.logs = docker_logs
-
-    wusa_docker_run(
-        "somme_command",
-        "some_image",
-        "some_name",
-        logger=Logger(),
-        substring_to_finish_logging="should return",
-    )
 
 
 def test_wusa_docker_commit():
