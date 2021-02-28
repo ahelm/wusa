@@ -79,10 +79,17 @@ def test_RunnerList_one_runner(mocked_runners_json):
     assert len(RunnersList()) == 1
 
 
-def test_RunnerList_new(mocked_runners_json):
+def test_RunnerList_new(mocked_runners_json, monkeypatch):
+    def do_nothing_and_return_None(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr("wusa.runners.wusa_docker_run", do_nothing_and_return_None)
+    monkeypatch.setattr("wusa.runners.wusa_docker_remove", do_nothing_and_return_None)
+    monkeypatch.setattr("wusa.runners.wusa_docker_commit", do_nothing_and_return_None)
+
     runners = RunnersList()
     assert len(runners) == 0
-    runners.create_new_runner("some/repo", ["some_label", "some-more"])
+    runners.create_new_runner("some/repo", "abcdef-token", ["some_label", "some-more"])
     assert len(runners) == 1
     assert runners[-1].name.startswith("wusa-")
     assert runners[-1].repo == "some/repo"

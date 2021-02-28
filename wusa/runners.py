@@ -15,6 +15,9 @@ from typing import Union
 from shortuuid import ShortUUID
 
 from . import WUSA_BASE_DIR
+from .docker import wusa_docker_commit
+from .docker import wusa_docker_remove
+from .docker import wusa_docker_run
 
 UUID = ShortUUID(alphabet=ascii_lowercase)
 
@@ -76,9 +79,22 @@ class RunnersList:
     def __getitem__(self, key: int) -> Runner:
         return self._runners[key]
 
-    def create_new_runner(self, repo: str, labels: List[str] = []) -> None:
+    def create_new_runner(self, repo: str, token: str, labels: List[str] = []) -> None:
         runners = self._runners
         new_runner = Runner.new(repo, labels)
+        cmd = (
+            f"./config.sh "
+            f" --unattended"
+            f" --url {new_runner.url}"
+            f" --name {new_runner.name}"
+            f" --replace"
+            f" --token {token}"
+        )
+        container = wusa_docker_run(
+            f"bash -c '{cmd}'", "wusarunner/base-linux:latest", new_runner.name
+        )
+        wusa_docker_commit(container, new_runner.name)
+        wusa_docker_remove(container)
         runners.append(new_runner)
         self._runners = runners
 
