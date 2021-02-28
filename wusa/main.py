@@ -24,6 +24,11 @@ from wusa.auth import gh_get_user_access_token
 from wusa.auth import gh_user_verification_codes
 from wusa.exception import PendingError
 from wusa.gh_api import post_gh_api
+from wusa.utils import print_error
+
+from .exceptions import DockerError
+from .exceptions import RunnerFileIOError
+from .runners import Runners
 
 app = typer.Typer()
 
@@ -99,22 +104,33 @@ def create(repo: str):
         )
         raise typer.Exit(2)
 
-    new_runner = Runner.new(repo, runner_registration["token"])
-    new_runner.save()
+    try:
+        Runners.create_new_runner(repo, runner_registration["token"])
+    except DockerError as e:
+        print_error("During runner creation an error occurred")
+        print_error(e)
+        raise typer.Exit(-2)
+    except RunnerFileIOError as e:
+        print_error("An issue with the runner config file occurred")
+        print_error(e)
+        raise typer.Exit(-2)
 
-    wusa_container = wusa_client.containers.run(
-        "wusarunner/base-linux:latest",
-        command=new_runner.config_cmd,
-        detach=True,
-    )
+    # new_runner = Runner.new(repo, runner_registration["token"])
+    # new_runner.save()
 
-    for line in wusa_container.logs(stream=True):
-        cleaned_line = line.decode("utf-8").strip()
-        if cleaned_line:
-            print(cleaned_line)
+    # wusa_container = wusa_client.containers.run(
+    #     "wusarunner/base-linux:latest",
+    #     command=new_runner.config_cmd,
+    #     detach=True,
+    # )
 
-    wusa_container.commit(repository=f"{new_runner.name}", tag="latest")
-    wusa_container.remove()
+    # for line in wusa_container.logs(stream=True):
+    #     cleaned_line = line.decode("utf-8").strip()
+    #     if cleaned_line:
+    #         print(cleaned_line)
+
+    # wusa_container.commit(repository=f"{new_runner.name}", tag="latest")
+    # wusa_container.remove()
 
 
 @app.command()

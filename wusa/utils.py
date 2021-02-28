@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from typing import Union
+
 import typer
 from shortuuid import ShortUUID
 from validators import url
@@ -24,7 +26,7 @@ def generate_container_name() -> str:
     raise typer.Exit(-1)
 
 
-def print_error(msg: str) -> None:
+def print_error(msg: Union[str, Exception]) -> None:
     typer.secho(f"ERROR :: {msg}", fg=typer.colors.RED, err=True)
 
 

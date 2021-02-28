@@ -5,3 +5,7 @@ class NoDockerServerFound(Exception):
 
 class DockerError(Exception):
     pass
+
+
+class RunnerFileIOError(Exception):
+    pass

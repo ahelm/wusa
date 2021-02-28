@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from json import dumps
 from json import loads
+from json.decoder import JSONDecodeError
 from string import ascii_lowercase
 from typing import IO
 from typing import Dict
@@ -18,6 +19,7 @@ from . import WUSA_BASE_DIR
 from .docker import wusa_docker_commit
 from .docker import wusa_docker_remove
 from .docker import wusa_docker_run
+from .exceptions import RunnerFileIOError
 
 UUID = ShortUUID(alphabet=ascii_lowercase)
 
@@ -55,8 +57,15 @@ class Runner:
 class RunnersList:
     @property
     def _runners(self) -> List[Runner]:
-        with open_runner_file(mode="r") as fp:
-            raw_list = loads(fp.read())
+        try:
+            with open_runner_file(mode="r") as fp:
+                file_content = fp.read()
+                if file_content:
+                    raw_list = loads(file_content)
+                else:
+                    raw_list = []
+        except JSONDecodeError:
+            raise RunnerFileIOError("Can not decode runner file!")
 
         runner_list = []
         for entry in raw_list:
@@ -70,8 +79,11 @@ class RunnersList:
         for runner in list_runners:
             processed_list.append(runner.as_dict())
 
-        with open_runner_file(mode="w") as fp:
-            fp.write(dumps(processed_list))
+        try:
+            with open_runner_file(mode="w") as fp:
+                fp.write(dumps(processed_list))
+        except TypeError:
+            raise RunnerFileIOError("Can not write to runner file!")
 
     def __len__(self) -> int:
         return len(self._runners)
@@ -93,6 +105,7 @@ class RunnersList:
         container = wusa_docker_run(
             f"bash -c '{cmd}'", "wusarunner/base-linux:latest", new_runner.name
         )
+        container.wait()
         wusa_docker_commit(container, new_runner.name)
         wusa_docker_remove(container)
         runners.append(new_runner)
