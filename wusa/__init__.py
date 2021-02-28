@@ -1,17 +1,6 @@
 # -*- coding: utf-8 -*-
-import sys
 from pathlib import Path
-
-import docker
-from docker.errors import DockerException
 import typer
-
-try:
-    wusa_client = docker.from_env()
-except DockerException:
-    print("[ERROR] Can't obtain docker client!", file=sys.stderr)
-    print("[ERROR] Is docker deamon running?", file=sys.stderr)
-    sys.exit(-1)
 
 
 APP_NAME = "wusa"
