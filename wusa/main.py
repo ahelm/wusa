@@ -15,7 +15,7 @@ from .exceptions import BadRequest
 from .exceptions import DockerError
 from .exceptions import PendingError
 from .exceptions import RunnerFileIOError
-from .gh_api import post_gh_api
+from .gh import post_gh_api
 from .output import confirm
 from .output import console
 from .output import print_error
