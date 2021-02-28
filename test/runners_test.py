@@ -5,7 +5,7 @@ from string import ascii_lowercase
 from pytest import fixture
 
 from wusa.runners import Runner
-from wusa.runners import RunnersList
+from wusa.runners import Runners
 from wusa.runners import open_runner_file
 
 
@@ -66,7 +66,7 @@ def test_open_runner_file(mocked_wusa_base_dir):
 
 
 def test_RunnerList_no_runners(mocked_runners_json):
-    assert len(RunnersList()) == 0
+    assert len(Runners) == 0
 
 
 def test_RunnerList_one_runner(mocked_runners_json):
@@ -76,7 +76,7 @@ def test_RunnerList_one_runner(mocked_runners_json):
         "labels": ["label1", "label2", "some_other_label"],
     }
     mocked_runners_json.write_text(json.dumps([Runner(**runner_dict).as_dict()]))
-    assert len(RunnersList()) == 1
+    assert len(Runners) == 1
 
 
 def test_RunnerList_new(mocked_runners_json, monkeypatch):
@@ -87,9 +87,29 @@ def test_RunnerList_new(mocked_runners_json, monkeypatch):
     monkeypatch.setattr("wusa.runners.wusa_docker_remove", do_nothing_and_return_None)
     monkeypatch.setattr("wusa.runners.wusa_docker_commit", do_nothing_and_return_None)
 
-    runners = RunnersList()
-    assert len(runners) == 0
-    runners.create_new_runner("some/repo", "abcdef-token", ["some_label", "some-more"])
-    assert len(runners) == 1
-    assert runners[-1].name.startswith("wusa-")
-    assert runners[-1].repo == "some/repo"
+    assert len(Runners) == 0
+    Runners.create_new_runner("some/repo", "abcdef-token", ["some_label", "some-more"])
+    assert len(Runners) == 1
+    assert Runners[-1].name.startswith("wusa-")
+    assert Runners[-1].repo == "some/repo"
+
+
+def test_RunnerList_new_check_run_call_args(mocked_runners_json, monkeypatch):
+    def do_nothing_and_return_None(*args, **kwargs):
+        return None
+
+    def check_args(command, image, name):
+        # keep space for checking for surrounded space
+        assert " --unattended " in command
+        assert " --url https://github.com/some/repo " in command
+        assert " --name wusa-" in command
+        assert " --replace " in command
+        assert " --token abcdeftoken " in command
+        assert image == "wusarunner/base-linux:latest"
+        assert name.startswith("wusa-")
+
+    monkeypatch.setattr("wusa.runners.wusa_docker_run", check_args)
+    monkeypatch.setattr("wusa.runners.wusa_docker_remove", do_nothing_and_return_None)
+    monkeypatch.setattr("wusa.runners.wusa_docker_commit", do_nothing_and_return_None)
+
+    Runners.create_new_runner("some/repo", "abcdeftoken", ["some_label", "some-more"])

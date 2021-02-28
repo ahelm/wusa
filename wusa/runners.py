@@ -84,11 +84,11 @@ class RunnersList:
         new_runner = Runner.new(repo, labels)
         cmd = (
             f"./config.sh "
-            f" --unattended"
-            f" --url {new_runner.url}"
-            f" --name {new_runner.name}"
-            f" --replace"
-            f" --token {token}"
+            f" --unattended "
+            f" --url {new_runner.url} "
+            f" --name {new_runner.name} "
+            f" --replace "
+            f" --token {token} "
         )
         container = wusa_docker_run(
             f"bash -c '{cmd}'", "wusarunner/base-linux:latest", new_runner.name
