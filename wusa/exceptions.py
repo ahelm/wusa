@@ -2,6 +2,14 @@
 from gidgethub import BadRequest  # noqa: F401
 
 
+class NoAccessToken(Exception):
+    pass
+
+
+class GHError(Exception):
+    pass
+
+
 class NoDockerServerFound(Exception):
     pass
 

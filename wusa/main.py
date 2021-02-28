@@ -6,16 +6,17 @@ from time import sleep
 
 import typer
 
-from . import WUSA_ACCESS_TOKEN
 from . import WUSA_BASE_DIR
 from . import WUSA_RUNNER_FILE
-from .auth import gh_get_user_access_token
-from .auth import gh_user_verification_codes
 from .exceptions import BadRequest
 from .exceptions import DockerError
+from .exceptions import GHError
 from .exceptions import PendingError
 from .exceptions import RunnerFileIOError
+from .gh import get_gh_access_token
+from .gh import get_gh_verification_codes
 from .gh import post_gh_api
+from .gh import save_access_token
 from .output import confirm
 from .output import console
 from .output import print_error
@@ -72,8 +73,10 @@ def create(repo: str):
 @app.command(short_help="Login or refresh your authentication")
 def auth():
     try:
-        verification_response = gh_user_verification_codes()
-    except ConnectionError:
+        verification_response = get_gh_verification_codes()
+    except GHError as exc:
+        print("An error occurred while trying to obtain device code")
+        print(exc)
         raise typer.Exit(2)
 
     code = verification_response["user_code"]
@@ -93,19 +96,20 @@ def auth():
         time_until_expiration = timedelta(seconds=verification_response["expires_in"])
         time_between_requests = timedelta(seconds=verification_response["interval"])
         number_checks = time_until_expiration // time_between_requests
+        device_code = verification_response["device_code"]
 
         for _ in range(number_checks):
             try:
-                access_token = gh_get_user_access_token(
-                    verification_response["device_code"],
-                )
+                access_token = get_gh_access_token(device_code)
                 break
             except PendingError:
                 sleep(time_between_requests.seconds)
-            except ConnectionError:
-                raise NotImplementedError
+            except GHError as exc:
+                print("An error occurred while trying to obtain access token")
+                print(exc)
+                raise typer.Exit(2)
 
-    WUSA_ACCESS_TOKEN.write_text(access_token)
+    save_access_token(access_token)
     success("Obtained user access token")
 
 
