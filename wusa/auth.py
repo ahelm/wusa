@@ -5,9 +5,9 @@ from urllib.parse import parse_qs
 
 import requests
 
-from wusa import WUSA_CLIENT_ID
-from wusa.exception import PendingError
-from wusa.utils import is_valid_status_code
+from . import WUSA_CLIENT_ID
+from .exceptions import PendingError
+from .utils import is_valid_status_code
 
 
 def gh_user_verification_codes() -> Dict[str, Union[str, int]]:

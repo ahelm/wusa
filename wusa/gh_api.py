@@ -6,7 +6,7 @@ from typing import Dict
 import aiohttp
 from gidgethub.aiohttp import GitHubAPI
 
-from wusa.utils import token_else_raise_and_exit
+from .utils import token_else_raise_and_exit
 
 
 async def async_get_gh_api(api: str, token: str):

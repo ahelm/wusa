@@ -2,28 +2,13 @@
 from typing import Union
 
 import typer
-from shortuuid import ShortUUID
 from validators import url
 
 from wusa import WUSA_ACCESS_TOKEN
-from wusa.store import read_runners_file
 
 
 def is_valid_url(url_to_check: str) -> bool:
     return url(url_to_check) is True
-
-
-def generate_container_name() -> str:
-    runners = read_runners_file()
-
-    for _ in range(100):
-        runner_name = "wusa_" + ShortUUID().random(length=8)
-
-        if runner_name not in runners:
-            return runner_name
-
-    typer.secho("Failed to generate unique runner name!", fg=typer.colors.RED, err=True)
-    raise typer.Exit(-1)
 
 
 def print_error(msg: Union[str, Exception]) -> None:
