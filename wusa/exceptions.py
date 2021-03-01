@@ -22,5 +22,9 @@ class RunnerFileIOError(Exception):
     pass
 
 
+class InvalidRunnerName(Exception):
+    pass
+
+
 class PendingError(Exception):
     pass

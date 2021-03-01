@@ -57,6 +57,10 @@ def api_runner_registration(repo: str) -> str:
     return f"/repos/{repo}/actions/runners/registration-token"
 
 
+def api_runner_removal(repo: str) -> str:
+    return f"/repos/{repo}/actions/runners/remove-token"
+
+
 def api_runner_list(repo: str) -> str:
     return f"/repos/{repo}/actions/runners"
 

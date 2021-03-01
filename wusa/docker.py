@@ -41,6 +41,44 @@ def wusa_docker_get(name: str) -> Container:
         raise DockerError("Error encountered while trying to get container")
 
 
+def wusa_docker_list_containers(name: Optional[str] = None) -> Container:
+    client = get_client()
+    filters = {"label": "org.wusa.container-name"}
+    if name:
+        filters["name"] = name
+
+    try:
+        return client.containers.list(all=True, filters=filters)
+    except APIError:
+        raise DockerError("Error encountered while trying getting list of containers")
+
+
+def wusa_docker_container_stop(container: Container, remove: bool = True) -> None:
+    try:
+        if container.status == "running":
+            silent_print("# Stopping container")
+            container.stop()
+            silent_print("- Successfully stopped container")
+
+        silent_print("# Removing container")
+        container.remove()
+        silent_print("- Successfully removed container")
+
+    except APIError:
+        raise DockerError("Error encountered while trying to remove container")
+
+
+def wusa_docker_remove_image(image_name: str) -> None:
+    client = get_client()
+
+    try:
+        client.images.remove(image_name)
+    except ImageNotFound:
+        raise DockerError(f"Did not find image '{image_name}'")
+    except APIError:
+        raise DockerError("Error encountered while trying to get image")
+
+
 def wusa_docker_run(
     command: str,
     image: str,

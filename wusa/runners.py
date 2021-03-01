@@ -17,9 +17,16 @@ from shortuuid import ShortUUID
 
 from . import WUSA_BASE_DIR
 from .docker import wusa_docker_commit
+from .docker import wusa_docker_container_stop
+from .docker import wusa_docker_list_containers
 from .docker import wusa_docker_remove
+from .docker import wusa_docker_remove_image
 from .docker import wusa_docker_run
+from .exceptions import InvalidRunnerName
 from .exceptions import RunnerFileIOError
+from .gh import api_runner_removal
+from .gh import post_gh_api
+from .output import silent_print
 
 UUID = ShortUUID(alphabet=ascii_lowercase)
 
@@ -69,6 +76,23 @@ class Runner:
             stop_logging_substr="Listening for Jobs",
         )
 
+    def cleanup(self) -> None:
+        # directly unpack container list
+        (container,) = wusa_docker_list_containers(name=self.name)
+        wusa_docker_container_stop(container)
+        silent_print("# Getting removal token")
+        response = post_gh_api(api_runner_removal(self.repo))
+        silent_print("- Got removal token")
+        token = response["token"]
+        removal_container = wusa_docker_run(
+            f"bash -c './config.sh remove --token {token}'",
+            self.name,
+            self.name,
+        )
+        silent_print("GitHub deleted runner")
+        wusa_docker_container_stop(removal_container)
+        wusa_docker_remove_image(self.name)
+
 
 class RunnersList:
     @property
@@ -106,6 +130,18 @@ class RunnersList:
 
     def __getitem__(self, key: int) -> Runner:
         return self._runners[key]
+
+    def remove(self, runner_name: str) -> None:
+        runners = self._runners
+        for i, runner in enumerate(runners):
+            if runner.name == runner_name:
+                runners[i].cleanup()
+                del runners[i]
+                break
+        else:
+            raise InvalidRunnerName(f"No runner with name '{runner_name}' found")
+
+        self._runners = runners
 
     def create_new_runner(
         self,

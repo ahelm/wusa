@@ -9,6 +9,7 @@ from . import WUSA_BASE_DIR
 from .exceptions import BadRequest
 from .exceptions import DockerError
 from .exceptions import GHError
+from .exceptions import InvalidRunnerName
 from .exceptions import NoAccessToken
 from .exceptions import PendingError
 from .exceptions import RunnerFileIOError
@@ -78,6 +79,27 @@ def create(repo: str):
 @app.command(name="list-local")
 def list_local_runners():
     print_runners(Runners)
+
+
+@app.command(name="rm")
+def rm_runner(runner_name: str):
+    with status(
+        "Removing wusa runner",
+        on_success=f"Runner '{runner_name}' successfully removed",
+    ):
+        try:
+            Runners.remove(runner_name)
+        except InvalidRunnerName as exc:
+            print_error("An error occurred while trying to remove a runner")
+            print_error(exc)
+            raise typer.Exit(-2)
+        except NoAccessToken:
+            print_error("Please run 'wusa auth' to authenticate")
+            raise typer.Exit(-1)
+        except BadRequest as exc:
+            print_error("Issue obtaining 'removal-token'")
+            print_error(exc)
+            raise typer.Exit(1)
 
 
 @app.command(name="list-repo")
