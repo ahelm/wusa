@@ -53,6 +53,10 @@ def post_gh_api(api: str, data: Dict[str, Any] = {}) -> Dict[str, Any]:
     return loop.run_until_complete(async_post_gh_api(api, token, data))
 
 
+def api_runner_registration(repo: str) -> str:
+    return f"/repos/{repo}/actions/runners/registration-token"
+
+
 def get_gh_verification_codes() -> Dict[str, Union[str, int]]:
     url = "https://github.com/login/device/code"
     data = {"client_id": _CLIENT_ID, "scope": "repo"}
