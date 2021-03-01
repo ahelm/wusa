@@ -51,7 +51,7 @@ def save_access_token(token: str) -> None:
 async def async_get_gh_api(
     api: str,
     token: str,
-) -> Dict[str, Union[str, int, Any]]:
+) -> Dict[str, Any]:
     """Coroutine which sends a GET request to GitHub API.
 
     Parameters
@@ -74,8 +74,8 @@ async def async_get_gh_api(
 async def async_post_gh_api(
     api: str,
     token: str,
-    data: Dict[str, Union[str, int, Any]],
-) -> Dict[str, Union[str, int, Any]]:
+    data: Dict[str, Union[str, int]],
+) -> Dict[str, Any]:
     """Coroutine which sends a POST request to GitHub API.
 
     Parameters
@@ -98,7 +98,7 @@ async def async_post_gh_api(
         return await gh_api.post(api, data=data)
 
 
-def get_gh_api(api: str) -> Dict[str, Union[str, int, Any]]:
+def get_gh_api(api: str) -> Dict[str, Any]:
     """Wrapper function for GET requests to call GitHub API in async mode.
 
     Parameters
@@ -117,8 +117,8 @@ def get_gh_api(api: str) -> Dict[str, Union[str, int, Any]]:
 
 def post_gh_api(
     api: str,
-    data: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Union[str, int, Any]]:
+    data: Optional[Dict[str, Union[str, int]]] = None,
+) -> Dict[str, Any]:
     """Wrapper function for POST requests to call GitHub API in async mode.
 
     Parameters

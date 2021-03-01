@@ -5,7 +5,6 @@ from time import sleep
 
 import typer
 
-from . import WUSA_BASE_DIR
 from .exceptions import BadRequest
 from .exceptions import DockerError
 from .exceptions import GHError
@@ -54,7 +53,10 @@ def create(repo: str):
         on_success="New runner created",
     ):
         try:
-            new_runner = Runners.create_new_runner(repo, runner_registration["token"])
+            new_runner = Runners.create_new_runner(
+                repo,
+                str(runner_registration["token"]),
+            )
         except DockerError as exc:
             print_error("During runner creation an error occurred")
             print_error(exc)
@@ -158,9 +160,3 @@ def auth():
                 raise typer.Exit(2)
 
     save_access_token(access_token)
-
-
-@app.callback()
-def main():
-    if not WUSA_BASE_DIR.exists():
-        WUSA_BASE_DIR.mkdir(parents=True)
