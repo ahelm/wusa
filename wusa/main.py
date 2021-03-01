@@ -81,8 +81,8 @@ def list_local_runners():
     print_runners(Runners)
 
 
-@app.command(name="rm")
-def rm_runner(runner_name: str):
+@app.command(name="remove")
+def remove_runner(runner_name: str):
     with status(
         "Removing wusa runner",
         on_success=f"Runner '{runner_name}' successfully removed",
