@@ -56,7 +56,7 @@ def create(repo: str):
             print_error(exc)
             raise typer.Exit(-2)
 
-    success(f"Runner '[bold white]{new_runner.name}[/bold white]' created")
+    success(f"Runner '{new_runner.name}' created")
 
     # Task 3: Startup of runner
     with console.status("Starting up new runner"):
@@ -67,7 +67,7 @@ def create(repo: str):
             print_error(exc)
             raise typer.Exit(-2)
 
-    success(f"Runner '[bold white]{new_runner.name}[/bold white]' is up and running")
+    success(f"Runner '{new_runner.name}' is up and running")
 
 
 @app.command(short_help="Login or refresh your authentication")
