@@ -33,7 +33,7 @@ def press_enter_to(message: str) -> bool:
 
 
 def print_step(message: str) -> None:
-    CONSOLE.print("[bold]*[/bold] " + message)
+    CONSOLE.print("[bold]*[/bold] " + message, highlight=False)
 
 
 def silent_print(message: str) -> None:
@@ -41,12 +41,15 @@ def silent_print(message: str) -> None:
 
 
 def success(message: str) -> None:
-    CONSOLE.print("[bold green]\u2713[/bold green] " + message)
+    CONSOLE.print("[bold green]\u2713[/bold green] " + message, highlight=False)
 
 
 def print_error(message: Union[str, Exception]) -> None:
     message = message if isinstance(message, str) else str(message)
-    ERROR_CONSOLE.print("[bold white on red] ERROR [/bold white on red] " + message)
+    ERROR_CONSOLE.print(
+        "[bold white on red] ERROR [/bold white on red] " + message,
+        highlight=False,
+    )
 
 
 def print_runners(
