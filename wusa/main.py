@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import webbrowser
 from datetime import timedelta
 from time import sleep
@@ -7,7 +6,6 @@ from time import sleep
 import typer
 
 from . import WUSA_BASE_DIR
-from . import WUSA_RUNNER_FILE
 from .exceptions import BadRequest
 from .exceptions import DockerError
 from .exceptions import GHError
@@ -21,6 +19,7 @@ from .gh import post_gh_api
 from .gh import save_access_token
 from .output import press_enter_to
 from .output import print_error
+from .output import print_runners
 from .output import print_step
 from .output import status
 from .runners import Runners
@@ -73,6 +72,11 @@ def create(repo: str):
             raise typer.Exit(3)
 
 
+@app.command(name="list-local")
+def list_local_runners():
+    print_runners(Runners)
+
+
 @app.command(short_help="Login or refresh your authentication")
 def auth():
     try:
@@ -119,6 +123,3 @@ def auth():
 def main():
     if not WUSA_BASE_DIR.exists():
         WUSA_BASE_DIR.mkdir(parents=True)
-
-    if not WUSA_RUNNER_FILE.exists():
-        WUSA_RUNNER_FILE.write_text(json.dumps([]))

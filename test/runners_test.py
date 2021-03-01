@@ -6,6 +6,7 @@ from pytest import fixture
 
 from wusa.runners import Runner
 from wusa.runners import Runners
+from wusa.runners import RunnersList
 from wusa.runners import open_runner_file
 
 
@@ -113,3 +114,14 @@ def test_RunnerList_new_check_run_call_args(mocked_runners_json, monkeypatch):
     monkeypatch.setattr("wusa.runners.wusa_docker_commit", do_nothing_and_return_None)
 
     Runners.create_new_runner("some/repo", "abcdeftoken", ["some_label", "some-more"])
+
+
+def test_RunnerList_iteration(monkeypatch):
+    # patch internal representation of runners and replace by list of str
+    monkeypatch.setattr(RunnersList, "_runners", ["a", "b", "c"])
+
+    assert tuple(RunnersList()) == ("a", "b", "c")
+    expected_value = ["a", "b", "c"]
+    assert len(expected_value) == len(RunnersList())
+    for i, content in enumerate(RunnersList()):
+        assert content == expected_value[i]

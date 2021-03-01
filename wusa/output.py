@@ -1,14 +1,24 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
 from typing import Generator
+from typing import Iterable
+from typing import List
 from typing import Optional
+from typing import Protocol
 from typing import Union
 
 from rich.console import Console
 from rich.prompt import Confirm
+from rich.table import Table
 
 CONSOLE = Console()
 ERROR_CONSOLE = Console(stderr=True)
+
+
+class RunnerObject(Protocol):
+    name: str
+    repo: str
+    labels: List[str]
 
 
 def press_enter_to(message: str) -> bool:
@@ -36,6 +46,19 @@ def success(message: str) -> None:
 def print_error(message: Union[str, Exception]) -> None:
     message = message if isinstance(message, str) else str(message)
     ERROR_CONSOLE.print("[bold white on red] ERROR [/bold white on red] " + message)
+
+
+def print_runners(runners: Iterable[RunnerObject]) -> None:
+    table = Table()
+
+    table.add_column("Runner name", style="bold blue", no_wrap=True)
+    table.add_column("Repository", style="magenta")
+    table.add_column("Labels")
+
+    for runner in runners:
+        table.add_row(runner.name, runner.repo, ",".join(runner.labels))
+
+    CONSOLE.print(table)
 
 
 @contextmanager
