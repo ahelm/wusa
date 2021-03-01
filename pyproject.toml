@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "wusa"
-version = "0.0.1"
-description = "CLI for managing self-hosted GitHub actions runner"
+version = "0.0.2"
+description = "CLI for managing containerized self-hosted GitHub Actions Runner"
 authors = ["Anton Helm <anton.helm@tecnico.ulisboa.pt>"]
 license = "MIT"
+readme = "README.md"
 
 [tool.poetry.scripts]
 wusa = 'wusa.main:app'
