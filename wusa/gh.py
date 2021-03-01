@@ -31,14 +31,14 @@ def save_access_token(token: str) -> None:
 
 async def async_get_gh_api(api: str, token: str):
     async with ClientSession() as session:
-        gh = GitHubAPI(session, "wusa", oauth_token=token)
-        return await gh.getitem(api)
+        gh_api = GitHubAPI(session, "wusa", oauth_token=token)
+        return await gh_api.getitem(api)
 
 
 async def async_post_gh_api(api: str, token: str, data: Dict[str, Any]):
     async with ClientSession() as session:
-        gh = GitHubAPI(session, "wusa", oauth_token=token)
-        return await gh.post(api, data=data)
+        gh_api = GitHubAPI(session, "wusa", oauth_token=token)
+        return await gh_api.post(api, data=data)
 
 
 def get_gh_api(api: str) -> Dict[str, Any]:
