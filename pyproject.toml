@@ -9,7 +9,7 @@ license = "MIT"
 wusa = 'wusa.main:app'
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 docker = "^4.4.0"
 typer = {extras = ["all"], version = "^0.3.2"}
 shortuuid = "^1.0.1"
