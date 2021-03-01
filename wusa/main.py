@@ -12,8 +12,10 @@ from .exceptions import GHError
 from .exceptions import NoAccessToken
 from .exceptions import PendingError
 from .exceptions import RunnerFileIOError
+from .gh import api_runner_list
 from .gh import api_runner_registration
 from .gh import get_gh_access_token
+from .gh import get_gh_api
 from .gh import get_gh_verification_codes
 from .gh import post_gh_api
 from .gh import save_access_token
@@ -22,6 +24,7 @@ from .output import print_error
 from .output import print_runners
 from .output import print_step
 from .output import status
+from .runners import Runner
 from .runners import Runners
 
 app = typer.Typer()
@@ -75,6 +78,22 @@ def create(repo: str):
 @app.command(name="list-local")
 def list_local_runners():
     print_runners(Runners)
+
+
+@app.command(name="list-repo")
+def list_repo_runners(repo: str):
+    try:
+        response = get_gh_api(api_runner_list(repo))
+        repo_runners = response["runners"]
+        repo_runners_as_runners = [Runner.from_dict(repo, r) for r in repo_runners]
+        print_runners(repo_runners_as_runners, with_repo_column=False)
+    except NoAccessToken:
+        print_error("Please run 'wusa auth' to authenticate")
+        raise typer.Exit(-1)
+    except BadRequest as exc:
+        print_error("Issue obtaining runner information")
+        print_error(exc)
+        raise typer.Exit(1)
 
 
 @app.command(short_help="Login or refresh your authentication")

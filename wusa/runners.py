@@ -36,6 +36,7 @@ def open_runner_file(mode: str) -> Generator[IO, None, None]:
 class Runner:
     name: str
     repo: str
+    status: str
     labels: List[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
@@ -44,7 +45,14 @@ class Runner:
     @classmethod
     def new(cls, repo: str, labels: List[str] = []) -> "Runner":
         name = "wusa-" + UUID.random(length=8)
-        return cls(name, repo, labels)
+        return cls(name, repo, "", labels)
+
+    @classmethod
+    def from_dict(cls, repo: str, runner_info) -> "Runner":
+        name = runner_info["name"]
+        status = runner_info["status"]
+        labels = [label["name"] for label in runner_info["labels"]]
+        return cls(name, repo, status, labels)
 
     @property
     def url(self) -> str:

@@ -18,6 +18,7 @@ ERROR_CONSOLE = Console(stderr=True)
 class RunnerObject(Protocol):
     name: str
     repo: str
+    status: str
     labels: List[str]
 
 
@@ -48,15 +49,32 @@ def print_error(message: Union[str, Exception]) -> None:
     ERROR_CONSOLE.print("[bold white on red] ERROR [/bold white on red] " + message)
 
 
-def print_runners(runners: Iterable[RunnerObject]) -> None:
+def print_runners(
+    runners: Iterable[RunnerObject],
+    with_repo_column: bool = True,
+) -> None:
     table = Table()
 
     table.add_column("Runner name", style="bold blue", no_wrap=True)
-    table.add_column("Repository", style="magenta")
+    if with_repo_column:
+        table.add_column("Repository", style="magenta")
+    table.add_column("Status")
     table.add_column("Labels")
 
     for runner in runners:
-        table.add_row(runner.name, runner.repo, ",".join(runner.labels))
+        runner_status = runner.status
+        if runner_status in ["online", "idle"]:
+            runner_status = "[green]" + runner_status + "[/green]"
+        else:
+            runner_status = "[grey50]" + runner_status + "[/grey50]"
+
+        args = [runner.name]
+
+        if with_repo_column:
+            args += [runner.repo]
+
+        args += [runner_status, ", ".join(runner.labels)]
+        table.add_row(*args)
 
     CONSOLE.print(table)
 

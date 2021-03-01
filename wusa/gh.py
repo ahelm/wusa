@@ -57,6 +57,10 @@ def api_runner_registration(repo: str) -> str:
     return f"/repos/{repo}/actions/runners/registration-token"
 
 
+def api_runner_list(repo: str) -> str:
+    return f"/repos/{repo}/actions/runners"
+
+
 def get_gh_verification_codes() -> Dict[str, Union[str, int]]:
     url = "https://github.com/login/device/code"
     data = {"client_id": _CLIENT_ID, "scope": "repo"}
