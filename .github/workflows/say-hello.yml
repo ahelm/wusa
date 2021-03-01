@@ -1,0 +1,12 @@
+name: Say 'Hello'
+
+on: push
+
+jobs:
+  hello:
+    name: Simple say hello
+    runs-on: self-hosted
+
+    steps:
+      - run: echo Hello.
+        shell: bash
