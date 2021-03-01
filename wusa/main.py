@@ -11,6 +11,7 @@ from . import WUSA_RUNNER_FILE
 from .exceptions import BadRequest
 from .exceptions import DockerError
 from .exceptions import GHError
+from .exceptions import NoAccessToken
 from .exceptions import PendingError
 from .exceptions import RunnerFileIOError
 from .gh import api_runner_registration
@@ -36,6 +37,9 @@ def create(repo: str):
     ):
         try:
             runner_registration = post_gh_api(api_runner_registration(repo))
+        except NoAccessToken:
+            print_error("Please run 'wusa auth' to authenticate")
+            raise typer.Exit(-1)
         except BadRequest as exc:
             print_error("Issue obtaining 'registration-token'")
             print_error(exc)
