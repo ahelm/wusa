@@ -6,9 +6,7 @@
 
 ![Demo video for Wusa](docs/assets/wusa_demo.gif)
 
-Wusa is also a command-line tool to help manage _containerized self-hosted GitHub
-Action Runner_. In some rare cases, you might require special hardware to execute
-your CI/CD pipeline. For these cases, `wusa` helps you remove the burden of setting up a docker container on your local machine, connecting it to your GitHub repositories, and provides simple commands.
+Wusa is also a command-line tool to help manage _containerized self-hosted GitHub Action Runner_. In some rare cases, you might require special hardware to execute your CI/CD pipeline. For these cases, `wusa` removes the burden of setting up a docker container on your local machine, connecting it to your GitHub repositories, and managing it over time.
 
 > **WARNING** wusa is in the early stages, and issues might appear. Please try it out and let me know what you think of wusa.
 
