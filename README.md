@@ -40,7 +40,7 @@ Afterward, you can create a containerized docker runner for a repo by running
 wusa create "ahelm/wusa"
 ```
 
-With `"ahelm/wusa"`is the short name of the repository.
+With `"ahelm/wusa"` is the short name of the repository.
 
 If you wish to list all the runner for a repository, run
 
