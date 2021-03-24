@@ -84,14 +84,17 @@ def wusa_docker_run(
     image: str,
     name: str,
     stop_logging_substr: Optional[str] = None,
+    mount_docker: bool = False,
 ) -> Container:
     client = get_client()
     try:
+        mounts = ["/var/run/docker.sock:/var/run/docker.sock"] if mount_docker else None
         container: Container = client.containers.run(
             image,
             command=command,
             detach=True,
             name=name,
+            mounts=mounts,
             labels={"org.wusa.container-name": name},
         )
 
