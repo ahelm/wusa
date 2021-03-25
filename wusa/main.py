@@ -31,7 +31,7 @@ from .runners import Runners
 app = typer.Typer()
 
 
-@app.command()
+@app.command(short_help="Create runner for repository.")
 def create(repo: str):
     # Task 1: Get registration token
     with status(
@@ -79,12 +79,18 @@ def create(repo: str):
             raise typer.Exit(3)
 
 
-@app.command(name="list-local")
+@app.command(
+    name="list-local",
+    short_help="List local runners.",
+)
 def list_local_runners():
     print_runners(Runners)
 
 
-@app.command(name="remove")
+@app.command(
+    name="remove",
+    short_help="Remove runner with name 'runner_name' from wusa.",
+)
 def remove_runner(runner_name: str):
     with status(
         "Removing wusa runner",
@@ -105,7 +111,10 @@ def remove_runner(runner_name: str):
             raise typer.Exit(1)
 
 
-@app.command(name="list-repo")
+@app.command(
+    name="list-repo",
+    short_help="List runners for repository.",
+)
 def list_repo_runners(repo: str):
     try:
         response = get_gh_api(api_runner_list(repo))
@@ -121,7 +130,7 @@ def list_repo_runners(repo: str):
         raise typer.Exit(1)
 
 
-@app.command(short_help="Login or refresh your authentication")
+@app.command(short_help="Login or refresh your authentication.")
 def auth():
     try:
         verification_response = get_gh_verification_codes()
