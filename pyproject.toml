@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wusa"
-version = "0.0.3"
+version = "0.0.4"
 description = "CLI for managing containerized self-hosted GitHub Actions Runner"
 authors = ["Anton Helm <anton.helm@tecnico.ulisboa.pt>"]
 license = "MIT"
