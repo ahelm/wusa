@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import webbrowser
 from datetime import timedelta
+from importlib.metadata import version
 from time import sleep
 
 import typer
@@ -160,3 +161,22 @@ def auth():
                 raise typer.Exit(2)
 
     save_access_token(access_token)
+
+
+def version_info(value: bool):
+    if value:
+        typer.echo(version(__package__))
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        None,
+        "--version",
+        callback=version_info,
+        is_eager=True,
+        help="Print version of wusa.",
+    ),
+):
+    pass
