@@ -56,7 +56,6 @@ RUN apt-get update \
 
 # enviroment variable is required to run GitHub action runner as root
 ENV RUNNER_ALLOW_RUNASROOT=1
-WORKDIR /actions-runner
 
 RUN curl -O -L https://github.com/actions/runner/releases/download/v${GH_ACTION_RUNNER_VERSION}/actions-runner-linux-x64-${GH_ACTION_RUNNER_VERSION}.tar.gz \
   && tar xzf ./actions-runner-linux-x64-${GH_ACTION_RUNNER_VERSION}.tar.gz \
