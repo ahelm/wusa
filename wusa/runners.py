@@ -6,6 +6,7 @@ from dataclasses import field
 from json import dumps
 from json import loads
 from json.decoder import JSONDecodeError
+from shutil import rmtree
 from string import ascii_lowercase
 from typing import IO
 from typing import Dict
@@ -16,6 +17,7 @@ from typing import Union
 from shortuuid import ShortUUID
 
 from . import WUSA_BASE_DIR
+from . import WUSA_RUNNER_DIR
 from .docker import wusa_docker_commit
 from .docker import wusa_docker_container_stop
 from .docker import wusa_docker_list_containers
@@ -48,6 +50,8 @@ class Runner:
 
     def __post_init__(self) -> None:
         self.labels = sorted(self.labels)
+        self.workdir = WUSA_RUNNER_DIR / self.name
+        self.workdir.mkdir(exist_ok=True)
 
     @classmethod
     def new(cls, repo: str, labels: List[str] = []) -> "Runner":
@@ -74,6 +78,8 @@ class Runner:
             self.name,
             self.name,
             stop_logging_substr="Listening for Jobs",
+            mounts=[f"{self.workdir}:{self.workdir}"],
+            mount_docker=True,
         )
 
     def cleanup(self) -> None:
@@ -92,6 +98,9 @@ class Runner:
         silent_print("GitHub deleted runner")
         wusa_docker_container_stop(removal_container)
         wusa_docker_remove_image(self.name)
+        silent_print("# Removing working directory")
+        rmtree(self.workdir)
+        silent_print("- Removed working directory")
 
 
 class RunnersList:
@@ -156,6 +165,7 @@ class RunnersList:
             f" --unattended "
             f" --url {new_runner.url} "
             f" --name {new_runner.name} "
+            f" --work {new_runner.workdir} "
             f" --replace "
             f" --token {token} "
         )

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import List
 from typing import Optional
 from typing import Protocol
 
@@ -84,17 +85,21 @@ def wusa_docker_run(
     image: str,
     name: str,
     stop_logging_substr: Optional[str] = None,
+    mounts: List[str] = [],
     mount_docker: bool = False,
 ) -> Container:
     client = get_client()
     try:
-        mounts = ["/var/run/docker.sock:/var/run/docker.sock"] if mount_docker else None
+        if mount_docker:
+            mounts += ["/var/run/docker.sock:/var/run/docker.sock"]
+
         container: Container = client.containers.run(
             image,
             command=command,
             detach=True,
             name=name,
-            mounts=mounts,
+            volumes=mounts,
+            privileged=True,
             labels={"org.wusa.container-name": name},
         )
 
