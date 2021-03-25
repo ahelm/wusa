@@ -52,12 +52,10 @@ RUN apt-get update \
   && curl -sL "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose \
   && chmod +x /usr/local/bin/docker-compose \
   && rm -rf /var/lib/apt/lists/* \
-  && rm -rf /tmp/* \
-  && useradd wusa \
-  && mkdir /actions-runner \
-  && chown wusa /actions-runner
+  && rm -rf /tmp/*
 
-USER wusa
+# enviroment variable is required to run GitHub action runner as root
+ENV RUNNER_ALLOW_RUNASROOT=1
 WORKDIR /actions-runner
 
 RUN curl -O -L https://github.com/actions/runner/releases/download/v${GH_ACTION_RUNNER_VERSION}/actions-runner-linux-x64-${GH_ACTION_RUNNER_VERSION}.tar.gz \
